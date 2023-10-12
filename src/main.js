@@ -1,4 +1,14 @@
-var Browser = require("./use_node.js")
+var Browser = null
+if (typeof process === 'object' && process.versions && process.versions.node) {
+  function reject(){
+    return Promise.reject("operation unsupported")
+  }
+  Browser = reject;  
+} else {
+  Browser = function tryBrowser (routine, args){
+    return crypto.subtle[routine].apply(crypto.subtle, args);
+  }
+}
 var OPS = ["generateKey", "importKey", "exportKey", "sign", "verify", "encrypt", "decrypt", "digest", "deriveKey", "deriveBits"]
 var nonce = require("crypto").randomBytes(64).toString("hex")
 var Bufferize = require('./bufferize')

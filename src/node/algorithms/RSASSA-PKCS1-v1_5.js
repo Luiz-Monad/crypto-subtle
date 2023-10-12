@@ -2,16 +2,16 @@ var Algorithm = require("./abstract")("RSASSA-PKCS1-v1_5")
   , RSA       = require("./shared/RSA")
   , forge     = require("node-forge")
   , types     = Algorithm.types
-  , public    = types.public.usage
-  , private   = types.private.usage;
+  , _public   = types.public.usage
+  , _private  = types.private.usage;
 
 //attached shared RSA
 RSA(Algorithm);
 
 Algorithm.checkParams = checkParams;
 
-public.verify = createVerify;
-private.sign  = createSign;
+_public.verify = createVerify;
+_private.sign  = createSign;
 
 module.exports = Algorithm;
 

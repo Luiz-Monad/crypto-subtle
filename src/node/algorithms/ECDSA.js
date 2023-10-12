@@ -2,15 +2,15 @@ var Algorithm = require("./abstract")("ECDSA")
   , ECC       = require("./shared/ECC")
   , forge     = require("node-forge")
   , types     = Algorithm.types
-  , public    = types.public.usage
-  , private   = types.private.usage;
+  , _public   = types.public.usage
+  , _private  = types.private.usage;
 
 ECC(Algorithm);
 
 Algorithm.checkParams = checkParams;
 
-public.verify = createVerify;
-private.sign  = createSign;
+_public.verify = createVerify;
+_private.sign  = createSign;
 
 module.exports = Algorithm;
 

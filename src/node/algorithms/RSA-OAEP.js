@@ -2,16 +2,16 @@ var Algorithm = require("./abstract")("RSA-OAEP")
   , RSA       = require("./shared/RSA")
   , forge     = require("node-forge")
   , types     = Algorithm.types
-  , public    = types.public.usage
-  , private   = types.private.usage;
+  , _public   = types.public.usage
+  , _private  = types.private.usage;
 
 //attached shared RSA
 RSA(Algorithm);
 
 Algorithm.checkParams = checkParams;
 
-public.encrypt = createEncrypt;
-private.decrypt = createDecrypt;
+_public.encrypt = createEncrypt;
+_private.decrypt = createDecrypt;
 
 module.exports = Algorithm;
 

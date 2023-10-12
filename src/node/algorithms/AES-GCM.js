@@ -2,7 +2,7 @@ var sjcl      = require("sjcl")
   , Algorithm = require("./abstract")("AES-GCM")
   , Bufferize = require('./../../bufferize')
   , AES       = require("./shared/AES")
-  , secret = Algorithm.types.secret.usage
+  , secret    = Algorithm.types.secret.usage
 
 AES(Algorithm);
 

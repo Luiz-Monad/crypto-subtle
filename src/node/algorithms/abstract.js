@@ -87,9 +87,9 @@ function createAlgorithm(name) {
     }
 
     , types   = Algorithm.types
-    , secret  = types.secret
-    , public  = types.public
-    , private = types.private
+    , _secret  = types.secret
+    , _public  = types.public
+    , _private = types.private
 
     , formats = Algorithm.formats
     , jwk     = formats.jwk
@@ -107,44 +107,44 @@ function createAlgorithm(name) {
 
 
   // reference appropriate formats for each key type
-  private.formats.push(pkcs8);
-  private.formats.push(jwk);
+  _private.formats.push(pkcs8);
+  _private.formats.push(jwk);
 
-  public.formats.push(spki)
-  public.formats.push(jwk);
+  _public.formats.push(spki)
+  _public.formats.push(jwk);
 
-  secret.formats.push(raw)
-  secret.formats.push(jwk);
+  _secret.formats.push(raw)
+  _secret.formats.push(jwk);
 
   // reference appropriate key types for each format
-  jwk.types.push(secret);
-  jwk.types.push(public);
-  jwk.types.push(private);
+  jwk.types.push(_secret);
+  jwk.types.push(_public);
+  jwk.types.push(_private);
 
-  raw.types.push(secret);
-  raw.types.push(private);
-  raw.types.push(public);
+  raw.types.push(_secret);
+  raw.types.push(_private);
+  raw.types.push(_public);
 
-  spki.types.push(public);
+  spki.types.push(_public);
 
-  pkcs8.types.push(private);
+  pkcs8.types.push(_private);
 
   // reference appropriate key types for each usage
-  sign.push(secret);
-  sign.push(private);
+  sign.push(_secret);
+  sign.push(_private);
 
-  verify.push(secret);
-  verify.push(public);
+  verify.push(_secret);
+  verify.push(_public);
 
-  encrypt.push(secret);
-  encrypt.push(public);
+  encrypt.push(_secret);
+  encrypt.push(_public);
 
-  decrypt.push(secret);
-  decrypt.push(private);
+  decrypt.push(_secret);
+  decrypt.push(_private);
 
-  deriveKey.push(private);
+  deriveKey.push(_private);
 
-  deriveBits.push(private);
+  deriveBits.push(_private);
 
   return Algorithm;
 }

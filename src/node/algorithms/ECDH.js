@@ -1,13 +1,13 @@
 var Algorithm = require("./abstract")("ECDH")
   , ECC       = require("./shared/ECC")
   , forge     = require("node-forge")
-  , private   = Algorithm.types.private.usage;
+  , _private  = Algorithm.types.private.usage;
 
 ECC(Algorithm);
 
 Algorithm.checkParams = checkParams;
 
-private.deriveBits = createDeriveBits;
+_private.deriveBits = createDeriveBits;
 
 module.exports = Algorithm;
 
