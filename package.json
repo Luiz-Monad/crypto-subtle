@@ -4,6 +4,7 @@
   "description": "crypto.subtle for node.js",
   "main": "src/main.js",
   "scripts": {
+    "prebuild": "babel ./node_modules/node-forge/js/forge.js --out-file dist/node-forge.js --config-file ./forge.babelrc",
     "build": "rollup -c rollup.config.mjs"
   },
   "keywords": [
@@ -20,21 +21,30 @@
     "url": "https://github.com/Luiz-Monad/crypto-subtle.git"
   },
   "dependencies": {
+    "@babel/preset-stage-0": "^7.8.3",
+    "node-forge": "^0.6.20",
+    "polyfill-promise": "^4.0.1"
+  },
+  "optionalDependencies": {
     "ecc-jsbn": "0.0.1",
     "ecc-qj": "https://github.com/mitar/ecc/tarball/6b03a1899434641c81b498a3f67146b380ed123a",
-    "node-forge": "^0.6.20",
-    "polyfill-promise": "^4.0.1",
     "sjcl": "^1.0.3",
     "ursa": "^0.9.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@babel/preset-env": "^7.22.20",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-transform-async-to-generator": "^7.22.5",
+    "@babel/plugin-transform-strict-mode": "^7.22.5",
+    "@babel/preset-env": "^7.23.2",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.5",
     "@rollup/plugin-multi-entry": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.3",
     "@rollup/plugin-typescript": "^11.1.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
     "rollup": "^3.29.4"
   }
 }
