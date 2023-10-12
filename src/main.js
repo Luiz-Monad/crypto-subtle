@@ -16,6 +16,7 @@ JS.decrypt = require("./node/decrypt")
 JS.digest = require("./node/digest")
 JS.deriveKey = require("./node/deriveKey")
 JS.deriveBits = require("./node/deriveBits")
+JS.CryptoKey = require("./node/CryptoKey")
 
 function makeArgArray (args){
   var ar = []
@@ -41,5 +42,7 @@ for (var i in OPS){
   var routine = OPS[i]
   Subtle[routine] = makeRoutine(routine + "");
 }
+
+Subtle._CryptoKey = global.CryptoKey || JS.CryptoKey;
 
 module.exports = Subtle;
