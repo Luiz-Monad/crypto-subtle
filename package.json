@@ -12,7 +12,6 @@
     "async",
     "promise"
   ],
-
   "author": "Ryan Bennett",
   "license": "MIT",
   "homepage": "https://github.com/Luiz-Monad/crypto-subtle",
@@ -28,7 +27,6 @@
     "sjcl": "^1.0.3",
     "ursa": "^0.9.3"
   },
-
   "devDependencies": {
     "@babel/core": "^7.23.0",
     "@babel/preset-env": "^7.22.20",
