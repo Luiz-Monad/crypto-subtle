@@ -4,8 +4,7 @@
   "description": "crypto.subtle for node.js",
   "main": "src/main.js",
   "scripts": {
-    "install": "node install.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c rollup.config.mjs"
   },
   "keywords": [
     "crypto",
@@ -13,17 +12,13 @@
     "async",
     "promise"
   ],
-  "browser": {
-    "./src/use_node.js": "./src/use_browser.js",
-    "node-forge": "./src/forgeless.js",
-    "./src/node/algorithms/shared/ecc.node.js": "./src/node/algorithms/shared/ecc.browser.js"
-  },
+
   "author": "Ryan Bennett",
   "license": "MIT",
-  "homepage": "https://github.com/rynomad/subtle",
+  "homepage": "https://github.com/Luiz-Monad/crypto-subtle",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rynomad/subtle.git"
+    "url": "https://github.com/Luiz-Monad/crypto-subtle.git"
   },
   "dependencies": {
     "ecc-jsbn": "0.0.1",
@@ -33,15 +28,15 @@
     "sjcl": "^1.0.3",
     "ursa": "^0.9.3"
   },
-  "optionalDependencies":{
-    "ecc-qj" : "https://github.com/mitar/ecc/tarball/6b03a1899434641c81b498a3f67146b380ed123a"
-  },
+
   "devDependencies": {
-    "glob": "^5.0.14",
-    "gulp": "^3.9.0",
-    "gulp-jsdoc": "^0.1.4",
-    "gulp-mocha": "^2.1.3",
-    "gulp-watch": "^4.3.2",
-    "plato": "^1.5.0"
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.5",
+    "@rollup/plugin-multi-entry": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.4",
+    "rollup": "^3.29.4"
   }
 }
