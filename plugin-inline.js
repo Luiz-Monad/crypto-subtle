@@ -6,15 +6,39 @@ module.exports = function ({ types: t }) {
         if (id.node.name === 'initModule') {
           return [
             t.returnStatement(
-              t.callExpression(id.node, [
-                t.identifier('arguments')
-              ])
-            )
+              t.identifier('initModule')
+            ),
           ];
         }
       }
     }
-    return [];
+    return null;
+  }
+  function sanitize(name) {
+    return '_' + name.replace(/[^a-zA-Z0-9_]/g, '').replace(/^[^a-zA-Z_]+/, '');
+  };
+  function makeInit(arrayArgs) {
+    const exports = t.identifier('_exports');
+    const args = arrayArgs.get('elements');
+    const fargs = args.map(arg => t.identifier(sanitize(arg.node.value)));
+    const initCalls = fargs.map(farg => t.expressionStatement(
+      t.callExpression(farg, [exports])
+    ));
+    return t.functionExpression(
+      null,
+      fargs,
+      t.blockStatement([
+        t.variableDeclaration('const', [
+          t.variableDeclarator(
+            exports, t.objectExpression([])
+          )
+        ]),
+        ...initCalls,
+        t.returnStatement(
+          exports
+        ),
+      ])
+    );
   }
   return {
     visitor: {
@@ -25,12 +49,20 @@ module.exports = function ({ types: t }) {
           if (lastStmt.isExpressionStatement()) {
             const expression = lastStmt.get('expression');
             if (expression.isCallExpression()) {
-              const lastArg = expression.get('arguments').pop();
-              if (lastArg.isFunctionExpression()) {
+              const id = expression.get('callee');
+              const args = expression.get('arguments');
+              const lastArg = args.pop();
+              const init = callInit(stmts)
+              if (id.node.name === 'define' && lastArg.isFunctionExpression()) {
                 const block = lastArg.get('body')
                 let nodes = stmts.map(b => b.node);
-                nodes = callInit(stmts).concat(nodes);
+                if (init) {
+                  nodes = init.concat(nodes);
+                }
                 block.replaceWith(t.blockStatement(nodes))
+              }
+              if (!init) {
+                lastArg.replaceWith(makeInit(args[0]))
               }
             }
           }

@@ -16,6 +16,7 @@ const config = {
         { find: 'ursa', replacement: './src/shim-ursa.js' },
         { find: 'ursa-optional', replacement: './src/shim-ursa.js' },
         { find: 'os', replacement: './src/shim-nodeos.js' },
+        { find: 'module', replacement: './src/shim-nodemodule.js' },
       ],
       customResolver: (id) => {
         console.log('aliasing', id)
