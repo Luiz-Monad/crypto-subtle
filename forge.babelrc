@@ -1,5 +1,6 @@
 {
     "plugins": [
+        "@babel/plugin-external-helpers",
         "./plugin-unwrap",
         "./plugin-clean",
         "./plugin-inline"
@@ -15,7 +16,7 @@
                         "not ie_mob 11"
                     ]
                 },
-                "modules": "commonjs",
+                "modules": false,
                 "forceAllTransforms": false,
                 "shippedProposals": false,
                 "useBuiltIns": false,

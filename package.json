@@ -22,18 +22,17 @@
   },
   "dependencies": {
     "polyfill-promise": "^4.0.1",
-    "node-forge": "^0.6.20",
-    "polyfill-promise": "^4.0.1"
+    "rsa-compat": "^2.0.8",
+    "sjcl": "^1.0.3"
   },
   "optionalDependencies": {
     "ecc-jsbn": "0.0.1",
-    "ecc-qj": "https://github.com/mitar/ecc/tarball/6b03a1899434641c81b498a3f67146b380ed123a",
-    "sjcl": "^1.0.3",
-    "ursa": "^0.9.3"
+    "ecc-qj": "https://github.com/mitar/ecc/tarball/6b03a1899434641c81b498a3f67146b380ed123a"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
+    "@babel/plugin-external-helpers": "^7.22.5",
     "@babel/plugin-transform-async-to-generator": "^7.22.5",
     "@babel/plugin-transform-strict-mode": "^7.22.5",
     "@babel/preset-env": "^7.23.2",

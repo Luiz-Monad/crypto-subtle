@@ -1,23 +1,40 @@
 import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import replace from '@rollup/plugin-replace';
+import alias from '@rollup/plugin-alias';
 
 const config = {
-    input: './src/main.js',
-    plugins: [
-        replace({
-            'node-forge': './dist/node-forge.js'
-        }),
-        resolve(),        
-        commonjs(),
-        babel({ babelHelpers: 'bundled' })
-    ],
-    output: {
-        file: 'dist/subtle.js',
-        format: 'iife',
-
-    }
+  input: './src/main.js',
+  plugins: [
+    babel({ babelHelpers: 'inline' }),
+    alias({
+      entries: [
+        { find: 'node-forge', replacement: './dist/forge.js' },
+        { find: 'crypto', replacement: './src/shim-crypto.js' },
+        { find: 'ecc-jsbn', replacement: './src/shim-ecc.js' },
+        { find: 'ecc-qj', replacement: './src/shim-qj.js' },
+        { find: 'ursa', replacement: './src/shim-ursa.js' },
+        { find: 'ursa-optional', replacement: './src/shim-ursa.js' },
+        { find: 'os', replacement: './src/shim-nodeos.js' },
+      ],
+      customResolver: (id) => {
+        console.log('aliasing', id)
+        return id
+      }
+    }),
+    resolve({
+      resolveOnly: (id) => {
+        console.log('resolving', id)
+        return id
+      }
+    }),
+    commonjs()
+  ],
+  output: {
+    file: 'dist/subtle.js',
+    format: 'iife',
+    name: 'subtle'
+  },
 };
 
 export default config;

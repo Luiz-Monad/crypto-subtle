@@ -9,8 +9,9 @@ if (typeof process === 'object' && process.versions && process.versions.node) {
     return crypto.subtle[routine].apply(crypto.subtle, args);
   }
 }
+var NodeCrypto = require("crypto");
 var OPS = ["generateKey", "importKey", "exportKey", "sign", "verify", "encrypt", "decrypt", "digest", "deriveKey", "deriveBits"]
-var nonce = require("crypto").randomBytes(64).toString("hex")
+var nonce = NodeCrypto.randomBytes(64).toString("hex")
 var Bufferize = require('./bufferize')
 global.FORGE = require("node-forge")
 global.Promise =  require("polyfill-promise")

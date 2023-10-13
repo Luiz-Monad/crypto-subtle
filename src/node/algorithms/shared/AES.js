@@ -1,8 +1,8 @@
-var sjcl      = require("sjcl"),
-    crypto    = require("crypto");
+var sjcl       = require("sjcl"),
+    NodeCrypto = require("crypto");
 
 function AES_generateKey(algorithm){
-  return raw_import(crypto.randomBytes(algorithm.length / 8));
+  return raw_import(NodeCrypto.randomBytes(algorithm.length / 8));
 }
 
 function raw_import(buf){
