@@ -21,9 +21,12 @@ module.exports = function ({ types: t }) {
     const exports = t.identifier('_exports');
     const args = arrayArgs.get('elements');
     const fargs = args.map(arg => t.identifier(sanitize(arg.node.value)));
-    const initCalls = fargs.map(farg => t.expressionStatement(
-      t.callExpression(farg, [exports])
-    ));
+    const initCalls = fargs
+      .filter(farg => farg.name !== sanitize('require'))
+      .filter(farg => farg.name !== sanitize('module'))
+      .map(farg => t.expressionStatement(
+        t.callExpression(farg, [exports])
+      ));
     return t.functionExpression(
       null,
       fargs,

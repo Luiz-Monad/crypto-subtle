@@ -15,8 +15,8 @@ const config = {
         { find: 'ecc-qj', replacement: './src/shim-qj.js' },
         { find: 'ursa', replacement: './src/shim-ursa.js' },
         { find: 'ursa-optional', replacement: './src/shim-ursa.js' },
-        { find: 'os', replacement: './src/shim-nodeos.js' },
-        { find: 'module', replacement: './src/shim-nodemodule.js' },
+        { find: 'os', replacement: './src/shim-node-os.js' },
+        { find: 'module', replacement: './src/shim-node-module.js' },
       ],
       customResolver: (id) => {
         console.log('aliasing', id)
