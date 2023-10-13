@@ -1,5 +1,9 @@
 {
-    "plugins": ["./plugin-delete"],
+    "plugins": [
+        "./plugin-unwrap",
+        "./plugin-clean",
+        "./plugin-inline"
+    ],
     "presets": [
         [
             "env",
@@ -11,7 +15,7 @@
                         "not ie_mob 11"
                     ]
                 },
-                "modules": "umd",
+                "modules": "commonjs",
                 "forceAllTransforms": false,
                 "shippedProposals": false,
                 "useBuiltIns": false,
