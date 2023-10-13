@@ -1,7 +1,7 @@
 //This Class represents a CryptoKey a la w3c webCrypto API
 
 
-var CryptoKey = function Cryptokey(key,type, exporter, uses, nonce){
+var CryptoKey = function Cryptokey(key, type, exporter, uses, nonce){
   var self = this;
   this.usages = []
 
