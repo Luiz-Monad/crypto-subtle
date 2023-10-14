@@ -37,8 +37,14 @@ module.exports = function ({ types: t }) {
     return nds.length > 0 && nds[0];
   }
   function unwrapInitDecl(func) {
-    const name = t.identifier(getInitName(func));
-    const body = cleanReturn(getInitBody(func));
+    return makeInlinedBody(
+      getInitName(func),
+      getInitBody(func)
+    );
+  }
+  function makeInlinedBody(_name, _body) {
+    const name = t.identifier(_name);
+    const body = cleanReturn(_body);
     // >>> var forge = global.forge;
     // >>> /*body*/
     // >>> ;
@@ -76,6 +82,24 @@ module.exports = function ({ types: t }) {
     }
     return nodes;
   }
+  function isModName(node) {
+    // var name = 'forge'
+    //     ^^^^
+    return (
+      node.get('declarations').length === 1 &&
+      node.get('declarations.0').isVariableDeclarator() &&
+      node.get('declarations.0.id').node.name === 'name'
+    );
+  }
+  function getModName(node) {
+    // var name = 'forge'
+    //     ^^^^
+    return node.get('declarations.0.init.value').node;
+  }
+  function hasModName(nodes) {
+    const nds = nodes.filter(isModName);
+    return nds.length > 0 && nds[0];
+  }
   return {
     visitor: {
       Program: {
@@ -85,10 +109,13 @@ module.exports = function ({ types: t }) {
           if (!isDefineCall(lastStmt)) {
             return;
           }
+          const name = hasModName(stmts);
           const init = hasInitDecl(stmts);
           const block = getDefineBody(lastStmt);
           if (init) {
             block.replaceWith(unwrapInitDecl(init));
+          } else if (name) {
+            block.replaceWith(makeInlinedBody(getModName(name), stmts));
           } else {
             const nodes = stmts.map(n => n.node);
             block.replaceWithMultiple(nodes);
