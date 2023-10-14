@@ -1,24 +1,29 @@
 module.exports = function ({ types: t }) {
+  function isImmedInvokFunExpression(node) {
+    //  (function(){ /*block_nodes*/ })()
+    //   ^^^^^^^^^^
+    return (
+      node.isExpressionStatement() &&
+      node.get('expression').isCallExpression() &&
+      node.get('expression.callee').isFunctionExpression()
+    );
+  }
+  function getImmedInvokFunNodes(node) {
+    //  (function(){ /*block_nodes*/ })()
+    //               ^^^^^^^^^^^^^^^
+    return node.get('expression.callee.body.body');
+  }
   return {
     visitor: {
       Program: {
         exit(path) {
-          const lastStatement = path.get('body').pop();
-          if (lastStatement.isExpressionStatement()) {
-            const expression = lastStatement.get('expression');
-            if (expression.isCallExpression()) {
-              const callee = expression.get('callee')
-              if (callee.isFunctionExpression()) {
-                const block = callee.get('body')
-                if (block.isBlockStatement()) {
-                  const body = block.get('body');
-                  const nodes = body.map(b => b.node);
-                  path.pushContainer('body', nodes);
-                  lastStatement.insertBefore(t.emptyStatement())
-                  lastStatement.remove();
-                }
-              }
-            }
+          const stmts = path.get('body');
+          const lastStmt = stmts.pop();
+          if (isImmedInvokFunExpression(lastStmt)) {
+            const nodes = getImmedInvokFunNodes(lastStmt);
+            path.pushContainer('body', nodes.map(b => b.node));
+            lastStmt.insertBefore(t.emptyStatement());
+            lastStmt.remove();
           }
         },
       }

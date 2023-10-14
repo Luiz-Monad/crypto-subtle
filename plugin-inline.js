@@ -1,38 +1,80 @@
 module.exports = function ({ types: t }) {
-  function hasInit(nodes) {
-    for (node of nodes) {
-      if (node.isFunctionDeclaration()) {
-        const id = node.get('id');
-        if (id.node.name === 'initModule') {
-          return node;
-        }
-      }
-    }
-    return null;
+  function isDefineCall(node) {
+    // define(arg, function)
+    // ^^^^^^      ^^^^^^^^
+    return (
+      node.isExpressionStatement() &&
+      node.get('expression').isCallExpression() &&
+      node.get('expression.callee').node.name === 'define' &&
+      node.get('expression.arguments.1').isFunctionExpression()
+    );
   }
-  function unwrap(func) {
-    if (func.isFunctionDeclaration()) {
-      const params = func.get('params');
-      const block = func.get('body')
-      if (block.isBlockStatement()) {
-        const name = t.identifier(params[0].node.name);
-        const body = block.get('body');
-        return t.blockStatement([
-          t.variableDeclaration('var', [
-            t.variableDeclarator(
-              name,
-              t.identifier('global.' + name.name)
-            )
-          ]),
-          ...(body.map(n => n.node)),
-          t.emptyStatement(),
-          t.returnStatement(
-            name
-          ),
-        ]);
+  function getDefineBody(node) {
+    // define(arg, function() { /*body*/ })
+    //                          ^^^^^^^^
+    return node.get('expression.arguments.1.body');
+  }
+  function isInitDecl(node) {
+    // function initModule(forge) { /*body*/ }
+    // ^^^^^^^^ ^^^^^^^^^^
+    return (
+      node.isFunctionDeclaration() &&
+      node.get('id').node.name === 'initModule'
+    );
+  }
+  function getInitName(node) {
+    // function initModule(forge) { /*body*/ }
+    //                     ^^^^^
+    return node.get('params.0').node.name;
+  }
+  function getInitBody(node) {
+    // function initModule(forge) { /*body*/ }
+    //                              ^^^^^^^^
+    return node.get('body.body');
+  }
+  function hasInitDecl(nodes) {
+    const nds = nodes.filter(isInitDecl);
+    return nds.length > 0 && nds[0];
+  }
+  function unwrapInitDecl(func) {
+    const name = t.identifier(getInitName(func));
+    const body = cleanReturn(getInitBody(func));
+    // >>> var forge = global.forge;
+    // >>> /*body*/
+    // >>> ;
+    // >>> return forge;    
+    return t.blockStatement([
+      t.variableDeclaration('var', [
+        t.variableDeclarator(
+          name,
+          t.identifier('global.' + name.name)
+        )
+      ]),
+      ...(body.map(n => n.node)),
+      t.emptyStatement(),
+      t.returnStatement(
+        name
+      ),
+    ]);
+  }
+  function cleanReturn(nodes) {
+    // { function x() { return; } ; stmt; return; if (test) { return }; }
+    //                                    ^^^^^^              ^^^^^^
+    for (const node of nodes) {
+      if (node.isReturnStatement()) {
+        node.remove();
+      }
+      if (node.isIfStatement()) {
+        const _then = node.get('consequent');
+        const _else = node.get('alternate');
+        cleanReturn([_then]);
+        if (_else) cleanReturn([_else]);
+      }
+      if (node.isBlockStatement()) {
+        cleanReturn(node.get('body'));
       }
     }
-    return [];
+    return nodes;
   }
   return {
     visitor: {
@@ -40,26 +82,19 @@ module.exports = function ({ types: t }) {
         exit(path) {
           const stmts = path.get('body');
           const lastStmt = stmts.pop();
-          if (lastStmt.isExpressionStatement()) {
-            const expression = lastStmt.get('expression');
-            if (expression.isCallExpression()) {
-              const id = expression.get('callee');
-              const args = expression.get('arguments');
-              const lastArg = args.pop();
-              const init = hasInit(stmts)
-              if (id.node.name === 'define' && lastArg.isFunctionExpression()) {
-                const block = lastArg.get('body')
-                let nodes = stmts.map(b => b.node);
-                if (init) {
-                  block.replaceWith(unwrap(init));
-                } else {
-                  block.replaceWith(t.blockStatement(nodes));
-                }
-              }
-              for (stmt of stmts) {
-                stmt.remove();
-              }
-            }
+          if (!isDefineCall(lastStmt)) {
+            return;
+          }
+          const init = hasInitDecl(stmts);
+          const block = getDefineBody(lastStmt);
+          if (init) {
+            block.replaceWith(unwrapInitDecl(init));
+          } else {
+            const nodes = stmts.map(n => n.node);
+            block.replaceWithMultiple(nodes);
+          }
+          for (stmt of stmts) {
+            stmt.remove();
           }
         },
       }
