@@ -21,6 +21,7 @@
     "url": "https://github.com/Luiz-Monad/crypto-subtle.git"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "polyfill-promise": "^4.0.1",
     "rsa-compat": "^2.0.8",
     "sjcl": "^1.0.3"

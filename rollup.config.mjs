@@ -17,6 +17,7 @@ const config = {
         { find: 'ursa-optional', replacement: './src/shim-ursa.js' },
         { find: 'os', replacement: './src/shim-node-os.js' },
         { find: 'module', replacement: './src/shim-node-module.js' },
+        { find: 'buffer-v6-polyfill', replacement: './node_modules/buffer/index.js' }
       ],
       customResolver: (id) => {
         console.log('aliasing', id)
@@ -29,7 +30,7 @@ const config = {
         return id
       }
     }),
-    commonjs()
+    commonjs(),
   ],
   output: {
     file: 'dist/subtle.js',
