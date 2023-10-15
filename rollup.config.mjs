@@ -2,6 +2,7 @@ import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
+import terser from '@rollup/plugin-terser';
 
 const config = {
   input: './src/main.js',
@@ -32,11 +33,16 @@ const config = {
     }),
     commonjs(),
   ],
-  output: {
+  output: [{
     file: 'dist/subtle.js',
     format: 'iife',
-    name: 'subtle'
-  },
+    name: 'subtle',
+  }, {
+    file: 'dist/subtle.min.js',
+    format: 'iife',
+    name: 'subtle',
+    plugins: [terser()]
+  }],
 };
 
 export default config;
