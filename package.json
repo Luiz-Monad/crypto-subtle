@@ -1,5 +1,5 @@
 {
-  "name": "subtle",
+  "name": "@luiz-monad/crypto-subtle",
   "version": "0.1.8",
   "description": "crypto.subtle for node.js",
   "main": "src/main.js",
