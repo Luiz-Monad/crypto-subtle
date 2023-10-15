@@ -37,11 +37,13 @@ const config = {
     file: 'dist/subtle.js',
     format: 'iife',
     name: 'subtle',
+    sourcemap: true,
   }, {
     file: 'dist/subtle.min.js',
     format: 'iife',
     name: 'subtle',
-    plugins: [terser()]
+    sourcemap: true,
+    plugins: [terser()],
   }],
 };
 

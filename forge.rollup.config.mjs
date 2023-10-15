@@ -21,6 +21,7 @@ const config = {
   output: {
     file: 'dist/forge.js',
     format: 'cjs',
+    sourcemap: true,
   }
 };
 
