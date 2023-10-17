@@ -1,0 +1,41 @@
+import 'module';
+
+var sjcl = global.sjcl;
+sjcl.misc.hmac = function (key, Hash) {
+  this._hash = Hash = Hash || sjcl.hash.sha256;
+  var exKey = [[], []], i, bs = Hash.prototype.blockSize / 32;
+  this._baseHash = [new Hash(), new Hash()];
+  if (key.length > bs) {
+    key = Hash.hash(key);
+  }
+  for (i = 0; i < bs; i++) {
+    exKey[0][i] = key[i] ^ 909522486;
+    exKey[1][i] = key[i] ^ 1549556828;
+  }
+  this._baseHash[0].update(exKey[0]);
+  this._baseHash[1].update(exKey[1]);
+  this._resultHash = new Hash(this._baseHash[0]);
+};
+sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+  if (!this._updated) {
+    this.update(data);
+    return this.digest(data);
+  } else {
+    throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
+  }
+};
+sjcl.misc.hmac.prototype.reset = function () {
+  this._resultHash = new this._hash(this._baseHash[0]);
+  this._updated = false;
+};
+sjcl.misc.hmac.prototype.update = function (data) {
+  this._updated = true;
+  this._resultHash.update(data);
+};
+sjcl.misc.hmac.prototype.digest = function () {
+  var w = this._resultHash.finalize(), result = new this._hash(this._baseHash[1]).update(w).finalize();
+  this.reset();
+  return result;
+};
+
+export { sjcl as default };

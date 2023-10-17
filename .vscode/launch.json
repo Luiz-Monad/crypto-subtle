@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/gensync/**",
+                "**/gensync-utils/**",
+                "**/rewrite-stack-trace.js",
+                "**/@babel/core/lib/config/caching.js",
+            ],
+            "type": "node",
+        }
+    ]
+}
