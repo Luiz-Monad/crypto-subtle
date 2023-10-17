@@ -53,7 +53,10 @@ module.exports = function ({ types: t }) {
       t.variableDeclaration('var', [
         t.variableDeclarator(
           name,
-          t.identifier('global.' + name.name)
+          t.memberExpression(
+            t.identifier('global'),
+            name
+          )
         )
       ]),
       ...(body.map(n => n.node)),
@@ -120,7 +123,7 @@ module.exports = function ({ types: t }) {
             const nodes = stmts.map(n => n.node);
             block.replaceWithMultiple(nodes);
           }
-          for (stmt of stmts) {
+          for (const stmt of stmts) {
             stmt.remove();
           }
         },

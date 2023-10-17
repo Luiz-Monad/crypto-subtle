@@ -4,7 +4,7 @@
   "description": "crypto.subtle for node.js",
   "main": "src/main.js",
   "scripts": {
-    "prebuild": "rollup -c forge.rollup.config.mjs",
+    "vendor": "rollup -c vendor.rollup.config.mjs",
     "build": "rollup -c rollup.config.mjs"
   },
   "keywords": [
@@ -22,9 +22,7 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "polyfill-promise": "^4.0.1",
-    "rsa-compat": "^2.0.8",
-    "sjcl": "^1.0.3"
+    "polyfill-promise": "^4.0.1"
   },
   "optionalDependencies": {
     "ecc-jsbn": "0.0.1",
@@ -38,17 +36,20 @@
     "@babel/plugin-transform-strict-mode": "^7.22.5",
     "@babel/preset-env": "^7.23.2",
     "@rollup/plugin-alias": "^5.0.1",
-    "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-commonjs": "^25.0.5",
-    "@rollup/plugin-multi-entry": "^6.0.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-multi-entry": "^6.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.3",
+    "@rollup/plugin-replace": "^5.0.4",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.4",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "node-forge": "^0.6.20",
-    "rollup": "^3.29.4",
-    "rollup-plugin-amd": "^4.0.0"
+    "@rollup/plugin-typescript": "^11.1.5",
+    "node-forge": "^0.6.49",
+    "rollup": "^4.1.4",
+    "rollup-plugin-amd": "^4.0.0",
+    "rsa-compat": "^2.0.8",
+    "sjcl": "^1.0.8"
+  },
+  "resolutions": {
+    "**/@buxlabs/amd-to-es6": "0.16.3"
   }
 }

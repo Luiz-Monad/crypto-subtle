@@ -1,7 +1,7 @@
 const Buffer = require('buffer-v6-polyfill');
 global.Buffer = Buffer.Buffer;
 
-const expandoObject = new Proxy({}, {
+const expandoObject = () => new Proxy({}, {
     get(target, property) {
         if (!(property in target)) {
             target[property] = {};
@@ -14,7 +14,8 @@ const expandoObject = new Proxy({}, {
     },
 });
 
-global.forge = expandoObject;
+global.forge = expandoObject();
+global.sjcl = expandoObject();
 
 module.exports = {
 }

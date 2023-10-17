@@ -2,12 +2,14 @@
     "plugins": [
         "@babel/plugin-external-helpers",
         "./plugin-unwrap",
-        "./plugin-clean",
-        "./plugin-inline"
+        "./plugin-clean-amd",
+        "./plugin-clean-poly",
+        "./plugin-inline",
+        "./plugin-wrap"
     ],
     "presets": [
         [
-            "env",
+            "@babel/preset-env",
             {
                 "targets": {
                     "browsers": [

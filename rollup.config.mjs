@@ -10,12 +10,12 @@ const config = {
     babel({ babelHelpers: 'inline' }),
     alias({
       entries: [
-        { find: 'node-forge', replacement: './dist/forge.js' },
+        { find: 'node-forge', replacement: './vendor/forge/forge.js' },
+        { find: 'rsa-compat', replacement: './vendor/rsa/rsa-compat/index.js' },
+        { find: 'sjcl', replacement: './vendor/sjcl/_virtual/_virtual_index.js' },
         { find: 'crypto', replacement: './src/shim-crypto.js' },
         { find: 'ecc-jsbn', replacement: './src/shim-ecc.js' },
         { find: 'ecc-qj', replacement: './src/shim-qj.js' },
-        { find: 'ursa', replacement: './src/shim-ursa.js' },
-        { find: 'ursa-optional', replacement: './src/shim-ursa.js' },
         { find: 'os', replacement: './src/shim-node-os.js' },
         { find: 'module', replacement: './src/shim-node-module.js' },
         { find: 'buffer-v6-polyfill', replacement: './node_modules/buffer/index.js' }
