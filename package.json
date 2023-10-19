@@ -31,9 +31,6 @@
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
-    "@babel/plugin-external-helpers": "^7.22.5",
-    "@babel/plugin-transform-async-to-generator": "^7.22.5",
-    "@babel/plugin-transform-strict-mode": "^7.22.5",
     "@babel/preset-env": "^7.23.2",
     "@rollup/plugin-alias": "^5.0.1",
     "@rollup/plugin-babel": "^6.0.4",
@@ -45,11 +42,7 @@
     "@rollup/plugin-typescript": "^11.1.5",
     "node-forge": "^0.6.49",
     "rollup": "^4.1.4",
-    "rollup-plugin-amd": "^4.0.0",
     "rsa-compat": "^2.0.8",
     "sjcl": "^1.0.8"
-  },
-  "resolutions": {
-    "**/@buxlabs/amd-to-es6": "0.16.3"
   }
 }

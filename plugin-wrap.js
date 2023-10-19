@@ -1,48 +1,40 @@
 module.exports = function ({ types: t }) {
-  function isDefineCall(node) {
-    // define(arg, function)
-    // ^^^^^^      ^^^^^^^^
-    return (
-      node.isExpressionStatement() &&
-      node.get('expression').isCallExpression() &&
-      node.get('expression.callee').node.name === 'define' &&
-      node.get('expression.arguments.1').isFunctionExpression()
-    );
-  }
   function makeWrappedBody(_name, body) {
     const name = t.identifier(_name);
-    // >>> define(['module', 'require'], function() {
-    // >>>   var sjcl = global.sjcl;
-    // >>>   /*body*/
-    // >>>   ;
-    // >>>   return sjcl;    
-    // >>> });
-    return t.callExpression(
-      t.identifier('define'), [
-      t.arrayExpression([
-        t.StringLiteral('module'),
-        t.StringLiteral('require'),
-      ]),
-      t.functionExpression(null, [],
-        t.blockStatement([
-          t.variableDeclaration('var', [
-            t.variableDeclarator(
-              name,
-              t.memberExpression(
-                t.identifier('global'),
-                name
-              )
-            )
-          ]),
-          ...(body.map(n => n.node)),
-          t.emptyStatement(),
-          t.returnStatement(
-            name
-          ),
+    // >>> require('module');
+    // >>> var sjcl = global.sjcl;
+    // >>> /*body*/
+    // >>> ;
+    // >>> exports.sjcl = sjcl;
+    return [
+      t.expressionStatement(
+        t.callExpression(
+          t.identifier('require'), [
+          t.stringLiteral('module'),
         ])
       ),
-    ]
-    );
+      t.variableDeclaration('var', [
+        t.variableDeclarator(
+          name,
+          t.memberExpression(
+            t.identifier('global'),
+            name
+          )
+        )
+      ]),
+      ...(body.map(n => n.node)),
+      t.emptyStatement(),
+      t.expressionStatement(
+        t.assignmentExpression(
+          '=',
+          t.memberExpression(
+            t.identifier('exports'),
+            name
+          ),
+          name
+        )
+      ),
+    ];
   }
   function getMemberIdentifier(node) {
     let o = node;
@@ -79,13 +71,9 @@ module.exports = function ({ types: t }) {
           if (!stmts.length) {
             return;
           }
-          const lastStmt = stmts[stmts.length - 1];
-          if (isDefineCall(lastStmt)) {
-            return;
-          }
           const name = hasModName(stmts);
-          if (name) {
-            lastStmt.insertBefore(makeWrappedBody(getModName(name), stmts));
+          if (name && getModName(name) === 'sjcl') {
+            name.insertBefore(makeWrappedBody(getModName(name), stmts));
             for (const stmt of stmts) {
               stmt.remove();
             }

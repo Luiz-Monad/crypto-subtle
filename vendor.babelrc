@@ -1,11 +1,8 @@
 {
     "plugins": [
-        "@babel/plugin-external-helpers",
         "./plugin-unwrap",
-        "./plugin-clean-amd",
-        "./plugin-clean-poly",
-        "./plugin-inline",
-        "./plugin-wrap"
+        "./plugin-clean"
+        // "./plugin-wrap"
     ],
     "presets": [
         [
@@ -29,5 +26,5 @@
         ]
     ],
     "sourceMap": false,
-    "sourceType": "script"
+    "sourceType": "module"
 }

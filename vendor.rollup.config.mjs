@@ -1,8 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
-import alias from '@rollup/plugin-alias';
-import entry from '@rollup/plugin-multi-entry'
-import amd from 'rollup-plugin-amd';
+import commonjs from '@rollup/plugin-commonjs'
+import multiEntry from '@rollup/plugin-multi-entry'
 
 import path from 'path';
 import Glob from 'glob';
@@ -10,44 +9,53 @@ import Glob from 'glob';
 const glob = (patt) => (cwd) => Glob.sync(patt, { cwd });
 
 const vendored = {
-  forge: ['./node_modules/node-forge/js', 'forge.js'],
-  sjcl: ['./node_modules/sjcl/core', glob('*'), [
-    entry({
-      entryFileName: 'index.js',
-      preserveModules: true,
-    })
-  ]],
-  rsa: ['./node_modules/rsa-compat/', 'index.js'],
+  forge: ['./node_modules/node-forge/lib', 'index.js'],
+  // sjcl: ['./node_modules/sjcl/core', glob('*')],
+  // rsa: ['./node_modules/rsa-compat/lib', 'rsa.js'],
 }
 
-const config = Object.entries(vendored).map(([output, [root, input, plugins = []]]) => ({
-  input: (typeof input === 'string' ? [input] : Array.from(input(root))).map(i => `${root}/${i}`),
+const entrypoint = (root, input) =>
+  (typeof input === 'string' ? [input] : input).map(i => path.join(root, i));
+
+const config = Object.entries(vendored).map(([libName, [root, input, plugins = []]]) => ({
+  input: entrypoint(root, input),
   plugins: [
     ...plugins,
     babel({
-      babelHelpers: 'inline',
       configFile: './vendor.babelrc',
-      skipPreflightCheck: true
+      babelHelpers: 'bundled',
+      skipPreflightCheck: true,
     }),
     resolve({
-      modulePaths: [
-        path.resolve(`${root}/${output}`),
-      ]
+      rootDir: root,
+      moduleDirectories: [
+        path.resolve(root),
+      ],
     }),
-    amd(),
+    commonjs({
+      preserveModules: true,
+    }),    
+    multiEntry({
+      entryFileName: 'index.js',
+      exports: true,
+      preserveModules: true,
+    }),
   ],
   external: [
     'crypto',
     'module',
     'buffer',
     'buffer-v6-polyfill',
+    'node-forge',
+    'ursa',
+    'ursa-optional',
   ],
   output: {
-    dir: `vendor/${output}`,
+    dir: `vendor/${libName}`,
     format: 'es',
     preserveModules: true,
+    minifyInternalExports: false,
   },
-  logLevel: 'debug',
 }));
 
 export default config;
