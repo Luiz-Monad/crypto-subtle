@@ -1,4 +1,7 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
+import './random.js';
+import './sha1.js';
 
 /**
  * Partial implementation of PKCS#1 v2.2: RSA-OEAP
@@ -45,13 +48,13 @@
  *
  * Copyright (c) 2013-2014 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./util');
-require('./random');
-require('./sha1');
+var forge = forge$1;
+
+
+
 
 // shortcut for PKCS#1 API
-var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
+var pkcs1 = forge.pkcs1 = forge.pkcs1 || {};
 
 /**
  * Encode the given RSAES-OAEP message (M) using key, with optional label (L)

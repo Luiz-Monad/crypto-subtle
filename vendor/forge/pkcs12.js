@@ -1,4 +1,14 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './asn1.js';
+import './hmac.js';
+import './oids.js';
+import './pkcs7asn1.js';
+import './pbe.js';
+import './random.js';
+import './rsa.js';
+import './sha1.js';
+import './util.js';
+import './x509.js';
 
 /**
  * Javascript implementation of PKCS#12.
@@ -95,24 +105,24 @@
  *   ... -- For future extensions
  * }
  */
-var forge = require('./forge');
-require('./asn1');
-require('./hmac');
-require('./oids');
-require('./pkcs7asn1');
-require('./pbe');
-require('./random');
-require('./rsa');
-require('./sha1');
-require('./util');
-require('./x509');
+var forge = forge$1;
+
+
+
+
+
+
+
+
+
+
 
 // shortcut for asn.1 & PKI API
 var asn1 = forge.asn1;
 var pki = forge.pki;
 
 // shortcut for PKCS#12 API
-var p12 = module.exports = forge.pkcs12 = forge.pkcs12 || {};
+var p12 = forge.pkcs12 = forge.pkcs12 || {};
 var contentInfoValidator = {
   name: 'ContentInfo',
   tagClass: asn1.Class.UNIVERSAL,
@@ -342,7 +352,7 @@ p12.pkcs12FromAsn1 = function (obj, strict, password) {
      *           attribute was given but a bag type, the map key will be the
      *           bag type.
      */
-    getBags: function (filter) {
+    getBags: function getBags(filter) {
       var rval = {};
       var localKeyId;
       if ('localKeyId' in filter) {
@@ -373,7 +383,7 @@ p12.pkcs12FromAsn1 = function (obj, strict, password) {
      *
      * @return an array of bags with matching friendlyName attribute.
      */
-    getBagsByFriendlyName: function (friendlyName, bagType) {
+    getBagsByFriendlyName: function getBagsByFriendlyName(friendlyName, bagType) {
       return _getBagsByAttribute(pfx.safeContents, 'friendlyName', friendlyName, bagType);
     },
     /**
@@ -386,7 +396,7 @@ p12.pkcs12FromAsn1 = function (obj, strict, password) {
      *
      * @return an array of bags with matching localKeyId attribute.
      */
-    getBagsByLocalKeyId: function (localKeyId, bagType) {
+    getBagsByLocalKeyId: function getBagsByLocalKeyId(localKeyId, bagType) {
       return _getBagsByAttribute(pfx.safeContents, 'localKeyId', localKeyId, bagType);
     }
   };
@@ -642,7 +652,7 @@ function _decodeSafeContents(safeContents, strict, password) {
            Therefore put the SafeBag content through another validator to
            capture the fields.  Afterwards check & store the results. */
         validator = certBagValidator;
-        decoder = function () {
+        decoder = function decoder() {
           if (asn1.derToOid(capture.certId) !== pki.oids.x509Certificate) {
             var error = new Error('Unsupported certificate type, only X.509 supported.');
             error.oid = asn1.derToOid(capture.certId);

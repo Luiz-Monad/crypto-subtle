@@ -1,14 +1,19 @@
-'use strict';
+import { __module as csr } from '../../_virtual/csr.js';
+import require$$4 from 'crypto';
+import { asn1Exports } from './asn1.js';
+import { encodingExports } from './encoding.js';
+import { pemExports } from './pem.js';
+import { x509Exports } from './x509.js';
 
-var crypto = require('crypto');
-var ASN1 = require('./asn1.js');
-var Enc = require('./encoding.js');
-var PEM = require('./pem.js');
-var X509 = require('./x509.js');
+var crypto = require$$4;
+var ASN1 = asn1Exports;
+var Enc = encodingExports;
+var PEM = pemExports;
+var X509 = x509Exports;
 var RSA = {};
 
 /*global Promise*/
-var CSR = module.exports = function rsacsr(opts) {
+var CSR = csr.exports = function rsacsr(opts) {
   // We're using a Promise here to be compatible with the browser version
   // which will probably use the webcrypto API for some of the conversions
   opts = CSR._prepare(opts);
@@ -25,9 +30,7 @@ CSR._prepare = function (opts) {
   if (!opts) {
     throw new Error("You must pass options with key and domains to rsacsr");
   }
-  if (!Array.isArray(opts.domains) || 0 === opts.domains.length) {
-    new Error("You must pass options.domains as a non-empty array");
-  }
+  if (!Array.isArray(opts.domains) || 0 === opts.domains.length) ;
 
   // I need to check that 例.中国 is a valid domain name
   if (!opts.domains.every(function (d) {
@@ -152,3 +155,7 @@ RSA.sign = function signRsa(keypem, ab) {
     return RSA.signSync(keypem, ab);
   });
 };
+
+var csrExports = csr.exports;
+
+export { csrExports };

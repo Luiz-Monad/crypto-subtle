@@ -1,3 +1,5 @@
-'use strict';
+import { csrExports } from './lib/csr.js';
 
-module.exports = require('./lib/csr.js');
+var rsaCsr = csrExports;
+
+export { rsaCsr };

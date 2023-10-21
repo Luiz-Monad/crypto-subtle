@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Base-N/Base-X encoding/decoding functions.
  *
@@ -31,7 +29,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 var api = {};
-module.exports = api;
+var baseN = api;
 
 // baseN alphabet indexes
 var _reverseAlphabets = {};
@@ -171,3 +169,5 @@ function _encodeWithByteBuffer(input, alphabet) {
   }
   return output;
 }
+
+export { baseN };

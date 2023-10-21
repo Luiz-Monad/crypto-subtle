@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var hash = module.exports = sjcl.hash = sjcl.hash || {};
+var sjcl = require$$0;
+var hash = sjcl.hash = sjcl.hash || {};
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
 /** @fileOverview Javascript SHA-256 implementation.
@@ -55,7 +55,7 @@ hash.sha256.prototype = {
    * Reset the hash state.
    * @return this
    */
-  reset: function () {
+  reset: function reset() {
     this._h = this._init.slice(0);
     this._buffer = [];
     this._length = 0;
@@ -66,7 +66,7 @@ hash.sha256.prototype = {
    * @param {bitArray|String} data the data to hash.
    * @return this
    */
-  update: function (data) {
+  update: function update(data) {
     if (typeof data === "string") {
       data = codec.utf8String.toBits(data);
     }
@@ -96,7 +96,7 @@ hash.sha256.prototype = {
    * Complete hashing and output the hash value.
    * @return {bitArray} The hash value, an array of 8 big-endian words.
    */
-  finalize: function () {
+  finalize: function finalize() {
     var i,
       b = this._buffer,
       h = this._h;
@@ -148,7 +148,7 @@ hash.sha256.prototype = {
    * Function to precompute _init and _key.
    * @private
    */
-  _precompute: function () {
+  _precompute: function _precompute() {
     var i = 0,
       prime = 2,
       factor,
@@ -178,7 +178,7 @@ hash.sha256.prototype = {
    * @param {Uint32Array|bitArray} w one block of words.
    * @private
    */
-  _block: function (w) {
+  _block: function _block(w) {
     var i,
       tmp,
       a,

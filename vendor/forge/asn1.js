@@ -1,4 +1,6 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
+import './oids.js';
 
 /**
  * Javascript implementation of Abstract Syntax Notation Number One.
@@ -135,12 +137,13 @@
  * The full OID (including ASN.1 tag and length of 6 bytes) is:
  * 0x06062A864886F70D
  */
-var forge = require('./forge');
-require('./util');
-require('./oids');
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var forge = forge$1;
+
+
 
 /* ASN.1 API */
-var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
+var asn1 = forge.asn1 = forge.asn1 || {};
 
 /**
  * ASN.1 classes.
@@ -290,7 +293,7 @@ asn1.equals = function (obj1, obj2, options) {
     }
     return true;
   }
-  if (typeof obj1 !== typeof obj2) {
+  if (_typeof(obj1) !== _typeof(obj2)) {
     return false;
   }
   if (typeof obj1 === 'string') {
@@ -362,7 +365,7 @@ function _checkBufferLength(bytes, remaining, n) {
  *
  * @return the length of the BER-encoded ASN.1 value or undefined.
  */
-var _getValueLength = function (bytes, remaining) {
+var _getValueLength = function _getValueLength(bytes, remaining) {
   // TODO: move this function and related DER/BER functions to a der.js
   // file; better abstract ASN.1 away from der/ber.
   // fromDer already checked that this byte exists
@@ -1145,7 +1148,6 @@ asn1.validate = function (obj, v, capture, errors) {
           capture[v.captureBitStringContents] = obj.bitStringContents;
         }
         if (v.captureBitStringValue && 'bitStringContents' in obj) {
-          var value;
           if (obj.bitStringContents.length < 2) {
             capture[v.captureBitStringValue] = '';
           } else {

@@ -1,4 +1,6 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './md.js';
+import './util.js';
 
 /**
  * Secure Hash Algorithm with a 1024-bit block size implementation.
@@ -12,10 +14,10 @@
  *
  * Copyright (c) 2014-2015 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./md');
-require('./util');
-var sha512 = module.exports = forge.sha512 = forge.sha512 || {};
+var forge = forge$1;
+
+
+var sha512 = forge.sha512 = forge.sha512 || {};
 
 // SHA-512
 forge.md.sha512 = forge.md.algorithms.sha512 = sha512;
@@ -29,7 +31,7 @@ forge.md.sha384 = forge.md.algorithms.sha384 = sha384;
 
 // SHA-512/256
 forge.sha512.sha256 = forge.sha512.sha256 || {
-  create: function () {
+  create: function create() {
     return sha512.create('SHA-512/256');
   }
 };
@@ -37,7 +39,7 @@ forge.md['sha512/256'] = forge.md.algorithms['sha512/256'] = forge.sha512.sha256
 
 // SHA-512/224
 forge.sha512.sha224 = forge.sha512.sha224 || {
-  create: function () {
+  create: function create() {
     return sha512.create('SHA-512/224');
   }
 };

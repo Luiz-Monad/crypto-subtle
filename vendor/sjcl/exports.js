@@ -1,5 +1,8 @@
-"use strict";
+import { __module as exports } from './_virtual/exports.js';
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = sjcl;
-}
+(function (module) {
+
+	if (module.exports) {
+	  module.exports = sjcl;
+	} 
+} (exports));

@@ -1,4 +1,5 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
 
 /**
  * Cipher base API.
@@ -7,9 +8,9 @@
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./util');
-module.exports = forge.cipher = forge.cipher || {};
+var forge = forge$1;
+
+forge.cipher = forge.cipher || {};
 
 // registered algorithms
 forge.cipher.algorithms = forge.cipher.algorithms || {};

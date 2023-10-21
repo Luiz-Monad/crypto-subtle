@@ -1,4 +1,6 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './md.js';
+import './util.js';
 
 /**
  * Secure Hash Algorithm with 160-bit digest (SHA-1) implementation.
@@ -7,10 +9,10 @@
  *
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./md');
-require('./util');
-var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
+var forge = forge$1;
+
+
+var sha1 = forge.sha1 = forge.sha1 || {};
 forge.md.sha1 = forge.md.algorithms.sha1 = sha1;
 
 /**

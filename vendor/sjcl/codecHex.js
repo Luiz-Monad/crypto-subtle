@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var codec = module.exports = sjcl.codec = sjcl.codec || {};
+var sjcl = require$$0;
+var codec = sjcl.codec = sjcl.codec || {};
 /** @fileOverview Bit array codec implementations.
  *
  * @author Emily Stark
@@ -15,7 +15,7 @@ var codec = module.exports = sjcl.codec = sjcl.codec || {};
  */
 codec.hex = {
   /** Convert from a bitArray to a hex string. */
-  fromBits: function (arr) {
+  fromBits: function fromBits(arr) {
     var out = "",
       i;
     for (i = 0; i < arr.length; i++) {
@@ -25,7 +25,7 @@ codec.hex = {
   },
 
   /** Convert from a hex string to a bitArray. */
-  toBits: function (str) {
+  toBits: function toBits(str) {
     var i,
       out = [],
       len;

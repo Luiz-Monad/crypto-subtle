@@ -1,4 +1,6 @@
-"use strict";
+import { commonjsGlobal } from './_virtual/_commonjsHelpers.js';
+import { forge as forge$1 } from './forge.js';
+import { baseN as baseN$1 } from './baseN.js';
 
 /**
  * Utility functions for web applications.
@@ -7,11 +9,12 @@
  *
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-var baseN = require('./baseN');
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var forge = forge$1;
+var baseN = baseN$1;
 
 /* Utilities API */
-var util = module.exports = forge.util = forge.util || {};
+var util = forge.util = forge.util || {};
 
 // define setImmediate and nextTick
 (function () {
@@ -53,6 +56,16 @@ var util = module.exports = forge.util = forge.util || {};
 
   // upgrade polyfill to use postMessage
   if (typeof window !== 'undefined' && typeof window.postMessage === 'function') {
+    var handler = function handler(event) {
+      if (event.source === window && event.data === msg) {
+        event.stopPropagation();
+        var copy = callbacks.slice();
+        callbacks.length = 0;
+        copy.forEach(function (callback) {
+          callback();
+        });
+      }
+    };
     var msg = 'forge.setImmediate';
     var callbacks = [];
     util.setImmediate = function (callback) {
@@ -63,16 +76,6 @@ var util = module.exports = forge.util = forge.util || {};
         window.postMessage(msg, '*');
       }
     };
-    function handler(event) {
-      if (event.source === window && event.data === msg) {
-        event.stopPropagation();
-        var copy = callbacks.slice();
-        callbacks.length = 0;
-        copy.forEach(function (callback) {
-          callback();
-        });
-      }
-    }
     window.addEventListener('message', handler, true);
   }
 
@@ -119,7 +122,7 @@ util.isNodejs = typeof process !== 'undefined' && process.versions && process.ve
 // is not available.
 util.globalScope = function () {
   if (util.isNodejs) {
-    return global;
+    return commonjsGlobal;
   }
   return typeof self === 'undefined' ? window : self;
 }();
@@ -189,7 +192,7 @@ function ByteStringBuffer(b) {
         }
       }
     }
-  } else if (b instanceof ByteStringBuffer || typeof b === 'object' && typeof b.data === 'string' && typeof b.read === 'number') {
+  } else if (b instanceof ByteStringBuffer || _typeof(b) === 'object' && typeof b.data === 'string' && typeof b.read === 'number') {
     // copy existing buffer
     this.data = b.data;
     this.read = b.read;
@@ -843,7 +846,7 @@ util.DataBuffer.prototype.putBytes = function (bytes, encoding) {
   }
 
   // bytes is a util.DataBuffer or equivalent
-  if (bytes instanceof util.DataBuffer || typeof bytes === 'object' && typeof bytes.read === 'number' && typeof bytes.write === 'number' && util.isArrayBufferView(bytes.data)) {
+  if (bytes instanceof util.DataBuffer || _typeof(bytes) === 'object' && typeof bytes.read === 'number' && typeof bytes.write === 'number' && util.isArrayBufferView(bytes.data)) {
     var src = new Uint8Array(bytes.data.byteLength, bytes.read, bytes.length());
     this.accommodate(src.byteLength);
     var dst = new Uint8Array(bytes.data.byteLength, this.write);
@@ -1890,7 +1893,7 @@ util.inflate = function (api, bytes, raw) {
  * @param id the storage ID to use.
  * @param obj the storage object, null to remove.
  */
-var _setStorageObject = function (api, id, obj) {
+var _setStorageObject = function _setStorageObject(api, id, obj) {
   if (!api) {
     throw new Error('WebStorage not available.');
   }
@@ -1920,7 +1923,7 @@ var _setStorageObject = function (api, id, obj) {
  *
  * @return the storage object entry or null if none exists.
  */
-var _getStorageObject = function (api, id) {
+var _getStorageObject = function _getStorageObject(api, id) {
   if (!api) {
     throw new Error('WebStorage not available.');
   }
@@ -1965,7 +1968,7 @@ var _getStorageObject = function (api, id) {
  * @param key the key for the item.
  * @param data the data for the item (any javascript object/primitive).
  */
-var _setItem = function (api, id, key, data) {
+var _setItem = function _setItem(api, id, key, data) {
   // get storage object
   var obj = _getStorageObject(api, id);
   if (obj === null) {
@@ -1988,7 +1991,7 @@ var _setItem = function (api, id, key, data) {
  *
  * @return the item.
  */
-var _getItem = function (api, id, key) {
+var _getItem = function _getItem(api, id, key) {
   // get storage object
   var rval = _getStorageObject(api, id);
   if (rval !== null) {
@@ -2005,7 +2008,7 @@ var _getItem = function (api, id, key) {
  * @param id the storage ID to use.
  * @param key the key for the item.
  */
-var _removeItem = function (api, id, key) {
+var _removeItem = function _removeItem(api, id, key) {
   // get storage object
   var obj = _getStorageObject(api, id);
   if (obj !== null && key in obj) {
@@ -2034,7 +2037,7 @@ var _removeItem = function (api, id, key) {
  * @param api the storage interface.
  * @param id the storage ID to use.
  */
-var _clearItems = function (api, id) {
+var _clearItems = function _clearItems(api, id) {
   _setStorageObject(api, id, null);
 };
 
@@ -2047,7 +2050,7 @@ var _clearItems = function (api, id) {
  *
  * @return the return value from the function.
  */
-var _callStorageFunction = function (func, args, location) {
+var _callStorageFunction = function _callStorageFunction(func, args, location) {
   var rval = null;
 
   // default storage types
@@ -2481,7 +2484,6 @@ util.estimateCores = function (options, callback) {
       // run worker for 4 ms
       var st = Date.now();
       var et = st + 4;
-      while (Date.now() < et);
       self.postMessage({
         st: st,
         et: et

@@ -1,4 +1,4 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
 
 /**
  * Object IDs for ASN.1.
@@ -7,9 +7,9 @@
  *
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
+var forge = forge$1;
 forge.pki = forge.pki || {};
-var oids = module.exports = forge.pki.oids = forge.oids = forge.oids || {};
+var oids = forge.pki.oids = forge.oids = forge.oids || {};
 
 // set id to name mapping and name to id mapping
 function _IN(id, name) {

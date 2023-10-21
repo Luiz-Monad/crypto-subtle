@@ -1,4 +1,5 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
 
 /**
  * Cross-browser support for logging in a web application.
@@ -7,11 +8,11 @@
  *
  * Copyright (c) 2008-2013 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./util');
+var forge = forge$1;
+
 
 /* LOG API */
-module.exports = forge.log = forge.log || {};
+forge.log = forge.log || {};
 
 /**
  * Application logging system.
@@ -138,7 +139,7 @@ forge.log.prepareStandardFull = function (message) {
 };
 
 // create log level functions
-if (true) {
+{
   // levels for which we want functions
   var levels = ['error', 'warning', 'info', 'debug', 'verbose'];
   for (var i = 0; i < levels.length; ++i) {
@@ -254,7 +255,7 @@ if (typeof console !== 'undefined' && 'log' in console) {
       debug: console.debug,
       verbose: console.debug
     };
-    var f = function (logger, message) {
+    var f = function f(logger, message) {
       forge.log.prepareStandard(message);
       var handler = levelHandlers[message.level];
       // prepend standard message and concat args
@@ -266,7 +267,7 @@ if (typeof console !== 'undefined' && 'log' in console) {
     logger = forge.log.makeLogger(f);
   } else {
     // only appear to have basic console.log
-    var f = function (logger, message) {
+    var f = function f(logger, message) {
       forge.log.prepareStandardFull(message);
       console.log(message.standardFull);
     };
@@ -279,7 +280,7 @@ if (typeof console !== 'undefined' && 'log' in console) {
   // define fake console.log to avoid potential script errors on
   // browsers that do not have console logging
   console = {
-    log: function () {}
+    log: function log() {}
   };
 }
 

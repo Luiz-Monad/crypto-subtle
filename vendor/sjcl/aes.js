@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var cipher = module.exports = sjcl.cipher = sjcl.cipher || {};
+var sjcl = require$$0;
+var cipher = sjcl.cipher = sjcl.cipher || {};
 /** @fileOverview Low-level AES implementation.
  *
  * This file contains a low-level implementation of AES, optimized for
@@ -84,7 +84,7 @@ cipher.aes.prototype = {
    * @param {Array} data The plaintext.
    * @return {Array} The ciphertext.
    */
-  encrypt: function (data) {
+  encrypt: function encrypt(data) {
     return this._crypt(data, 0);
   },
   /**
@@ -92,7 +92,7 @@ cipher.aes.prototype = {
    * @param {Array} data The ciphertext.
    * @return {Array} The plaintext.
    */
-  decrypt: function (data) {
+  decrypt: function decrypt(data) {
     return this._crypt(data, 1);
   },
   /**
@@ -113,7 +113,7 @@ cipher.aes.prototype = {
    *
    * @private
    */
-  _precompute: function () {
+  _precompute: function _precompute() {
     var encTable = this._tables[0],
       decTable = this._tables[1],
       sbox = encTable[4],
@@ -164,7 +164,7 @@ cipher.aes.prototype = {
    * @return {Array} The four encrypted or decrypted words.
    * @private
    */
-  _crypt: function (input, dir) {
+  _crypt: function _crypt(input, dir) {
     if (input.length !== 4) {
       throw new sjcl.exception.invalid("invalid aes block size");
     }

@@ -1,4 +1,5 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
 
 /**
  * Supported cipher modes.
@@ -7,12 +8,12 @@
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./util');
+var forge = forge$1;
+
 forge.cipher = forge.cipher || {};
 
 // supported cipher modes
-var modes = module.exports = forge.cipher.modes = forge.cipher.modes || {};
+var modes = forge.cipher.modes = forge.cipher.modes || {};
 
 /** Electronic codebook (ECB) (Don't use this; it's not secure) **/
 

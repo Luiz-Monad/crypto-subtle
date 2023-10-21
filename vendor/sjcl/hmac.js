@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var misc = module.exports = sjcl.misc = sjcl.misc || {};
+var sjcl = require$$0;
+var misc = sjcl.misc = sjcl.misc || {};
 var hash = sjcl.hash;
 /** @fileOverview HMAC implementation.
  *

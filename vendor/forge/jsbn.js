@@ -1,4 +1,4 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
 
 // Copyright (c) 2005  Tom Wu
 // All Rights Reserved.
@@ -48,15 +48,11 @@ Address all questions regarding this license to:
   Tom Wu
   tjw@cs.Stanford.EDU
 */
-var forge = require('./forge');
-module.exports = forge.jsbn = forge.jsbn || {};
+var forge = forge$1;
+forge.jsbn = forge.jsbn || {};
 
 // Bits per digit
 var dbits;
-
-// JavaScript engine analysis
-var canary = 0xdeadbeefcafe;
-var j_lm = (canary & 0xffffff) == 0xefcafe;
 
 // (public) Constructor
 function BigInteger(a, b, c) {
@@ -122,10 +118,10 @@ function am3(i, x, w, j, c, n) {
 if (typeof navigator === 'undefined') {
   BigInteger.prototype.am = am3;
   dbits = 28;
-} else if (j_lm && navigator.appName == "Microsoft Internet Explorer") {
+} else if (navigator.appName == "Microsoft Internet Explorer") {
   BigInteger.prototype.am = am2;
   dbits = 30;
-} else if (j_lm && navigator.appName != "Netscape") {
+} else if (navigator.appName != "Netscape") {
   BigInteger.prototype.am = am1;
   dbits = 26;
 } else {
@@ -1409,7 +1405,7 @@ function bnGetPrng() {
   // create prng with api that matches BigInteger secure random
   return {
     // x is an array to fill with bytes
-    nextBytes: function (x) {
+    nextBytes: function nextBytes(x) {
       for (var i = 0; i < x.length; ++i) {
         x[i] = Math.floor(Math.random() * 0x0100);
       }
@@ -1466,12 +1462,3 @@ BigInteger.prototype.modInverse = bnModInverse;
 BigInteger.prototype.pow = bnPow;
 BigInteger.prototype.gcd = bnGCD;
 BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
-
-//BigInteger interfaces not implemented in jsbn:
-
-//BigInteger(int signum, byte[] magnitude)
-//double doubleValue()
-//float floatValue()
-//int hashCode()
-//long longValue()
-//static BigInteger valueOf(long val)

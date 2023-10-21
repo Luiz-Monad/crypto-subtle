@@ -1,7 +1,8 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var codec = module.exports = sjcl.codec = sjcl.codec || {};
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var sjcl = require$$0;
+var codec = sjcl.codec = sjcl.codec || {};
 var bitArray = sjcl.bitArray;
 /** @fileOverview Bit array codec implementations.
  *
@@ -17,7 +18,7 @@ var bitArray = sjcl.bitArray;
 codec.arrayBuffer = {
   /** Convert from a bitArray to an ArrayBuffer. 
    * Will default to 8byte padding if padding is undefined*/
-  fromBits: function (arr, padding, padding_count) {
+  fromBits: function fromBits(arr, padding, padding_count) {
     var out, i, ol, tmp, smallest;
     padding = padding == undefined ? true : padding;
     padding_count = padding_count || 8;
@@ -55,7 +56,7 @@ codec.arrayBuffer = {
     return out.buffer;
   },
   /** Convert from an ArrayBuffer to a bitArray. */
-  toBits: function (buffer) {
+  toBits: function toBits(buffer) {
     var i,
       out = [],
       len,
@@ -81,10 +82,10 @@ codec.arrayBuffer = {
     return out;
   },
   /** Prints a hex output of the buffer contents, akin to hexdump **/
-  hexDumpBuffer: function (buffer) {
+  hexDumpBuffer: function hexDumpBuffer(buffer) {
     var stringBufferView = new DataView(buffer);
     var string = '';
-    var pad = function (n, width) {
+    var pad = function pad(n, width) {
       n = n + '';
       return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
     };
@@ -92,9 +93,9 @@ codec.arrayBuffer = {
       if (i % 16 == 0) string += '\n' + i.toString(16) + '\t';
       string += pad(stringBufferView.getUint16(i).toString(16), 4) + ' ';
     }
-    if (typeof console === undefined) {
+    if ((typeof console === "undefined" ? "undefined" : _typeof(console)) === undefined) {
       console = console || {
-        log: function () {}
+        log: function log() {}
       }; //fix for IE
     }
 

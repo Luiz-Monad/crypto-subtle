@@ -1,4 +1,8 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './hmac.js';
+import './md.js';
+import './util.js';
+import require$$4 from 'crypto';
 
 /**
  * Password-Based Key-Derivation Function #2 implementation.
@@ -9,14 +13,15 @@
  *
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./hmac');
-require('./md');
-require('./util');
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var forge = forge$1;
+
+
+
 var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 var crypto;
 if (forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = require('crypto');
+  crypto = require$$4;
 }
 
 /**
@@ -35,7 +40,7 @@ if (forge.util.isNodejs && !forge.options.usePureJavaScript) {
  * @return the derived key, as a binary-encoded string of bytes, for the
  *           synchronous version (if no callback is specified).
  */
-module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function (p, s, c, dkLen, md, callback) {
+forge.pbkdf2 = pkcs5.pbkdf2 = function (p, s, c, dkLen, md, callback) {
   if (typeof md === 'function') {
     callback = md;
     md = null;
@@ -43,7 +48,7 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function (p, s, c, dkLen, md, cal
 
   // use native implementation if possible and not disabled, note that
   // some node versions only support SHA-1, others allow digest to be changed
-  if (forge.util.isNodejs && !forge.options.usePureJavaScript && crypto.pbkdf2 && (md === null || typeof md !== 'object') && (crypto.pbkdf2Sync.length > 4 || !md || md === 'sha1')) {
+  if (forge.util.isNodejs && !forge.options.usePureJavaScript && crypto.pbkdf2 && (md === null || _typeof(md) !== 'object') && (crypto.pbkdf2Sync.length > 4 || !md || md === 'sha1')) {
     if (typeof md !== 'string') {
       // default prf to SHA-1
       md = 'sha1';

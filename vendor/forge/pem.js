@@ -1,4 +1,5 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './util.js';
 
 /**
  * Javascript implementation of basic PEM (Privacy Enhanced Mail) algorithms.
@@ -28,11 +29,11 @@
  *
  * body: the binary-encoded body.
  */
-var forge = require('./forge');
-require('./util');
+var forge = forge$1;
+
 
 // shortcut for pem API
-var pem = module.exports = forge.pem = forge.pem || {};
+var pem = forge.pem = forge.pem || {};
 
 /**
  * Encodes (serializes) the given PEM object.
@@ -205,7 +206,7 @@ function foldHeader(header) {
 
   // ensure values with CRLF are folded
   var values = [];
-  var insertSpace = function (match, $1) {
+  var insertSpace = function insertSpace(match, $1) {
     return ' ' + $1;
   };
   for (var i = 0; i < header.values.length; ++i) {

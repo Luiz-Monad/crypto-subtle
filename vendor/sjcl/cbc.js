@@ -1,20 +1,10 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var beware = module.exports = sjcl.beware = sjcl.beware || {};
+var sjcl = require$$0;
+sjcl.beware = sjcl.beware || {};
 var mode = sjcl.mode;
 var exception = sjcl.exception;
 var bitArray = sjcl.bitArray;
-/** @fileOverview CBC mode implementation
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
-
-if (beware === undefined) {
-  beware = {};
-}
 sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."] = function () {
   /**
    * Dangerous: CBC mode with PKCS#5 padding.
@@ -36,7 +26,7 @@ sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity.
      * @return The encrypted data, an array of bytes.
      * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits, or if any adata is specified.
      */
-    encrypt: function (prp, plaintext, iv, adata) {
+    encrypt: function encrypt(prp, plaintext, iv, adata) {
       if (adata && adata.length) {
         throw new exception.invalid("cbc can't authenticate data");
       }
@@ -75,7 +65,7 @@ sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity.
      * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits, or if any adata is specified.
      * @throws {sjcl.exception.corrupt} if if the message is corrupt.
      */
-    decrypt: function (prp, ciphertext, iv, adata) {
+    decrypt: function decrypt(prp, ciphertext, iv, adata) {
       if (adata && adata.length) {
         throw new exception.invalid("cbc can't authenticate data");
       }

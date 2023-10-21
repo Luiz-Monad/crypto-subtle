@@ -1,7 +1,8 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var json = module.exports = sjcl.json = sjcl.json || {};
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var sjcl = require$$0;
+sjcl.json = sjcl.json || {};
 var codec = sjcl.codec;
 var misc = sjcl.misc;
 var cipher = sjcl.cipher;
@@ -38,7 +39,7 @@ sjcl.json = {
    * @return {Object} The cipher raw data.
    * @throws {sjcl.exception.invalid} if a parameter is invalid.
    */
-  _encrypt: function (password, plaintext, params, rp) {
+  _encrypt: function _encrypt(password, plaintext, params, rp) {
     params = params || {};
     rp = rp || {};
     var j = sjcl.json,
@@ -98,7 +99,7 @@ sjcl.json = {
    * @return {String} The ciphertext serialized data.
    * @throws {sjcl.exception.invalid} if a parameter is invalid.
    */
-  encrypt: function (password, plaintext, params, rp) {
+  encrypt: function encrypt(password, plaintext, params, rp) {
     var j = sjcl.json,
       p = j._encrypt.apply(j, arguments);
     return j.encode(p);
@@ -112,7 +113,7 @@ sjcl.json = {
    * @throws {sjcl.exception.invalid} if a parameter is invalid.
    * @throws {sjcl.exception.corrupt} if the ciphertext is corrupt.
    */
-  _decrypt: function (password, ciphertext, params, rp) {
+  _decrypt: function _decrypt(password, ciphertext, params, rp) {
     params = params || {};
     rp = rp || {};
     var j = sjcl.json,
@@ -167,7 +168,7 @@ sjcl.json = {
    * @throws {sjcl.exception.invalid} if a parameter is invalid.
    * @throws {sjcl.exception.corrupt} if the ciphertext is corrupt.
    */
-  decrypt: function (password, ciphertext, params, rp) {
+  decrypt: function decrypt(password, ciphertext, params, rp) {
     var j = sjcl.json;
     return j._decrypt(password, j.decode(ciphertext), params, rp);
   },
@@ -177,7 +178,7 @@ sjcl.json = {
    * @throws {sjcl.exception.invalid} if obj has a non-alphanumeric property.
    * @throws {sjcl.exception.bug} if a parameter has an unsupported type.
    */
-  encode: function (obj) {
+  encode: function encode(obj) {
     var i,
       out = '{',
       comma = '';
@@ -188,7 +189,7 @@ sjcl.json = {
         }
         out += comma + '"' + i + '":';
         comma = ',';
-        switch (typeof obj[i]) {
+        switch (_typeof(obj[i])) {
           case 'number':
           case 'boolean':
             out += obj[i];
@@ -212,7 +213,7 @@ sjcl.json = {
    * @return {Object} The decoded structure.
    * @throws {sjcl.exception.invalid} if str isn't (simple) JSON.
    */
-  decode: function (str) {
+  decode: function decode(str) {
     str = str.replace(/\s/g, '');
     if (!str.match(/^\{.*\}$/)) {
       throw new sjcl.exception.invalid("json decode: this isn't json!");
@@ -242,7 +243,7 @@ sjcl.json = {
    * @return {Object} target.
    * @private
    */
-  _add: function (target, src, requireSame) {
+  _add: function _add(target, src, requireSame) {
     if (target === undefined) {
       target = {};
     }
@@ -263,7 +264,7 @@ sjcl.json = {
   /** Remove all elements of minus from plus.  Does not modify plus.
    * @private
    */
-  _subtract: function (plus, minus) {
+  _subtract: function _subtract(plus, minus) {
     var out = {},
       i;
     for (i in plus) {
@@ -276,7 +277,7 @@ sjcl.json = {
   /** Return only the specified elements of src.
    * @private
    */
-  _filter: function (src, filter) {
+  _filter: function _filter(src, filter) {
     var out = {},
       i;
     for (i = 0; i < filter.length; i++) {
@@ -320,7 +321,6 @@ sjcl.misc.cachedPbkdf2 = function (password, obj) {
   var cache = sjcl.misc._pbkdf2Cache,
     c,
     cp,
-    str,
     salt,
     iter;
   obj = obj || {};

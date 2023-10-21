@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var mode = module.exports = sjcl.mode = sjcl.mode || {};
+var sjcl = require$$0;
+var mode = sjcl.mode = sjcl.mode || {};
 /** @fileOverview CCM mode implementation.
  *
  * Special thanks to Roy Nicholson for pointing out a bug in our
@@ -22,16 +22,16 @@ mode.ccm = {
    */
   name: "ccm",
   _progressListeners: [],
-  listenProgress: function (cb) {
+  listenProgress: function listenProgress(cb) {
     mode.ccm._progressListeners.push(cb);
   },
-  unListenProgress: function (cb) {
+  unListenProgress: function unListenProgress(cb) {
     var index = sjcl.mode.ccm._progressListeners.indexOf(cb);
     if (index > -1) {
       mode.ccm._progressListeners.splice(index, 1);
     }
   },
-  _callProgressListener: function (val) {
+  _callProgressListener: function _callProgressListener(val) {
     var p = sjcl.mode.ccm._progressListeners.slice(),
       i;
     for (i = 0; i < p.length; i += 1) {
@@ -47,7 +47,7 @@ mode.ccm = {
    * @param {Number} [tlen=64] the desired tag length, in bits.
    * @return {bitArray} The encrypted data, an array of bytes.
    */
-  encrypt: function (prf, plaintext, iv, adata, tlen) {
+  encrypt: function encrypt(prf, plaintext, iv, adata, tlen) {
     var L,
       out = plaintext.slice(0),
       tag,
@@ -83,7 +83,7 @@ mode.ccm = {
    * @param {Number} [tlen=64] tlen the desired tag length, in bits.
    * @return {bitArray} The decrypted data.
    */
-  decrypt: function (prf, ciphertext, iv, adata, tlen) {
+  decrypt: function decrypt(prf, ciphertext, iv, adata, tlen) {
     tlen = tlen || 64;
     adata = adata || [];
     var L,
@@ -115,7 +115,7 @@ mode.ccm = {
     }
     return out.data;
   },
-  _macAdditionalData: function (prf, adata, iv, tlen, ol, L) {
+  _macAdditionalData: function _macAdditionalData(prf, adata, iv, tlen, ol, L) {
     var mac,
       tmp,
       i,
@@ -156,7 +156,7 @@ mode.ccm = {
    * @return {bitArray} The tag, but not yet encrypted.
    * @private
    */
-  _computeTag: function (prf, plaintext, iv, adata, tlen, L) {
+  _computeTag: function _computeTag(prf, plaintext, iv, adata, tlen, L) {
     // compute B[0]
     var mac,
       i,
@@ -192,7 +192,7 @@ mode.ccm = {
    * @return {Object} An object with data and tag, the en/decryption of data and tag values.
    * @private
    */
-  _ctrMode: function (prf, data, iv, tag, tlen, L) {
+  _ctrMode: function _ctrMode(prf, data, iv, tag, tlen, L) {
     var enc,
       i,
       w = sjcl.bitArray,

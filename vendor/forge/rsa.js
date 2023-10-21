@@ -1,4 +1,12 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './asn1.js';
+import './jsbn.js';
+import './oids.js';
+import './pkcs1.js';
+import './prime.js';
+import './random.js';
+import './util.js';
+import require$$4 from 'crypto';
 
 /**
  * Javascript implementation of basic RSA algorithms.
@@ -63,18 +71,19 @@
  *
  * The OID for the RSA key algorithm is: 1.2.840.113549.1.1.1
  */
-var forge = require('./forge');
-require('./asn1');
-require('./jsbn');
-require('./oids');
-require('./pkcs1');
-require('./prime');
-require('./random');
-require('./util');
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+var forge = forge$1;
+
+
+
+
+
+
+
 if (typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
 }
-var _crypto = forge.util.isNodejs ? require('crypto') : null;
+var _crypto = forge.util.isNodejs ? require$$4 : null;
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -86,7 +95,7 @@ var util = forge.util;
  * RSA encryption and decryption, see RFC 2313.
  */
 forge.pki = forge.pki || {};
-module.exports = forge.pki.rsa = forge.rsa = forge.rsa || {};
+forge.pki.rsa = forge.rsa = forge.rsa || {};
 var pki = forge.pki;
 
 // for finding primes, which are 30k+i for i = 1, 7, 11, 13, 17, 19, 23, 29
@@ -318,7 +327,7 @@ var digestInfoValidator = {
  *
  * @return the encoded message (ready for RSA encrytion)
  */
-var emsaPkcs1v15encode = function (md) {
+var emsaPkcs1v15encode = function emsaPkcs1v15encode(md) {
   // get the oid for the algorithm
   var oid;
   if (md.algorithm in pki.oids) {
@@ -352,7 +361,7 @@ var emsaPkcs1v15encode = function (md) {
  *
  * @return the result of x^c mod n.
  */
-var _modPow = function (x, key, pub) {
+var _modPow = function _modPow(x, key, pub) {
   if (pub) {
     return x.modPow(key.e, key.n);
   }
@@ -609,7 +618,7 @@ pki.rsa.createKeyPairGenerationState = function (bits, e, options) {
   var prng = options.prng || forge.random;
   var rng = {
     // x is an array to fill with bytes
-    nextBytes: function (x) {
+    nextBytes: function nextBytes(x) {
       var b = prng.getBytesSync(x.length);
       for (var i = 0; i < x.length; ++i) {
         x[i] = b.charCodeAt(i);
@@ -688,7 +697,7 @@ pki.rsa.stepKeyPairGenerationState = function (state, n) {
   var THIRTY = new BigInteger(null);
   THIRTY.fromInt(30);
   var deltaIdx = 0;
-  var op_or = function (x, y) {
+  var op_or = function op_or(x, y) {
     return x | y;
   };
 
@@ -836,7 +845,7 @@ pki.rsa.stepKeyPairGenerationState = function (state, n) {
 pki.rsa.generateKeyPair = function (bits, e, options, callback) {
   // (bits), (options), (callback)
   if (arguments.length === 1) {
-    if (typeof bits === 'object') {
+    if (_typeof(bits) === 'object') {
       options = bits;
       bits = undefined;
     } else if (typeof bits === 'function') {
@@ -881,7 +890,7 @@ pki.rsa.generateKeyPair = function (bits, e, options, callback) {
   }
 
   // use native code if permitted, available, and parameters are acceptable
-  if (!forge.options.usePureJavaScript && !options.prng && bits >= 256 && bits <= 16384 && (e === 0x10001 || e === 3)) {
+  if (!options.prng && bits >= 256 && bits <= 16384 && (e === 0x10001 || e === 3)) {
     if (callback) {
       // try native async
       if (_detectNodeCrypto('generateKeyPair')) {
@@ -1030,19 +1039,19 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function (n, e) {
     }
     if (scheme === 'RSAES-PKCS1-V1_5') {
       scheme = {
-        encode: function (m, key, pub) {
+        encode: function encode(m, key, pub) {
           return _encodePkcs1_v1_5(m, key, 0x02).getBytes();
         }
       };
     } else if (scheme === 'RSA-OAEP' || scheme === 'RSAES-OAEP') {
       scheme = {
-        encode: function (m, key) {
+        encode: function encode(m, key) {
           return forge.pkcs1.encode_rsa_oaep(key, m, schemeOptions);
         }
       };
     } else if (['RAW', 'NONE', 'NULL', null].indexOf(scheme) !== -1) {
       scheme = {
-        encode: function (e) {
+        encode: function encode(e) {
           return e;
         }
       };
@@ -1106,7 +1115,7 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function (n, e) {
     }
     if (scheme === 'RSASSA-PKCS1-V1_5') {
       scheme = {
-        verify: function (digest, d) {
+        verify: function verify(digest, d) {
           // remove padding
           d = _decodePkcs1_v1_5(d, key, true);
           // d is ASN.1 BER-encoded DigestInfo
@@ -1145,7 +1154,7 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function (n, e) {
       };
     } else if (scheme === 'NONE' || scheme === 'NULL' || scheme === null) {
       scheme = {
-        verify: function (digest, d) {
+        verify: function verify(digest, d) {
           // remove padding
           d = _decodePkcs1_v1_5(d, key, true);
           return digest === d;
@@ -1215,13 +1224,13 @@ pki.setRsaPrivateKey = pki.rsa.setPrivateKey = function (n, e, d, p, q, dP, dQ, 
       };
     } else if (scheme === 'RSA-OAEP' || scheme === 'RSAES-OAEP') {
       scheme = {
-        decode: function (d, key) {
+        decode: function decode(d, key) {
           return forge.pkcs1.decode_rsa_oaep(key, d, schemeOptions);
         }
       };
     } else if (['RAW', 'NONE', 'NULL', null].indexOf(scheme) !== -1) {
       scheme = {
-        decode: function (d) {
+        decode: function decode(d) {
           return d;
         }
       };
@@ -1270,7 +1279,7 @@ pki.setRsaPrivateKey = pki.rsa.setPrivateKey = function (n, e, d, p, q, dP, dQ, 
       bt = 0x01;
     } else if (scheme === 'NONE' || scheme === 'NULL' || scheme === null) {
       scheme = {
-        encode: function () {
+        encode: function encode() {
           return md;
         }
       };
@@ -1772,7 +1781,7 @@ function _detectNodeCrypto(fn) {
  * @return true if detected, false if not.
  */
 function _detectSubtleCrypto(fn) {
-  return typeof util.globalScope !== 'undefined' && typeof util.globalScope.crypto === 'object' && typeof util.globalScope.crypto.subtle === 'object' && typeof util.globalScope.crypto.subtle[fn] === 'function';
+  return typeof util.globalScope !== 'undefined' && _typeof(util.globalScope.crypto) === 'object' && _typeof(util.globalScope.crypto.subtle) === 'object' && typeof util.globalScope.crypto.subtle[fn] === 'function';
 }
 
 /**
@@ -1785,7 +1794,7 @@ function _detectSubtleCrypto(fn) {
  * @return true if detected, false if not.
  */
 function _detectSubtleMsCrypto(fn) {
-  return typeof util.globalScope !== 'undefined' && typeof util.globalScope.msCrypto === 'object' && typeof util.globalScope.msCrypto.subtle === 'object' && typeof util.globalScope.msCrypto.subtle[fn] === 'function';
+  return typeof util.globalScope !== 'undefined' && _typeof(util.globalScope.msCrypto) === 'object' && _typeof(util.globalScope.msCrypto.subtle) === 'object' && typeof util.globalScope.msCrypto.subtle[fn] === 'function';
 }
 function _intToUint8Array(x) {
   var bytes = forge.util.hexToBytes(x.toString(16));
@@ -1794,19 +1803,4 @@ function _intToUint8Array(x) {
     buffer[i] = bytes.charCodeAt(i);
   }
   return buffer;
-}
-function _privateKeyFromJwk(jwk) {
-  if (jwk.kty !== 'RSA') {
-    throw new Error('Unsupported key algorithm "' + jwk.kty + '"; algorithm must be "RSA".');
-  }
-  return pki.setRsaPrivateKey(_base64ToBigInt(jwk.n), _base64ToBigInt(jwk.e), _base64ToBigInt(jwk.d), _base64ToBigInt(jwk.p), _base64ToBigInt(jwk.q), _base64ToBigInt(jwk.dp), _base64ToBigInt(jwk.dq), _base64ToBigInt(jwk.qi));
-}
-function _publicKeyFromJwk(jwk) {
-  if (jwk.kty !== 'RSA') {
-    throw new Error('Key algorithm must be "RSA".');
-  }
-  return pki.setRsaPublicKey(_base64ToBigInt(jwk.n), _base64ToBigInt(jwk.e));
-}
-function _base64ToBigInt(b64) {
-  return new BigInteger(forge.util.bytesToHex(forge.util.decode64(b64)), 16);
 }

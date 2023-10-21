@@ -1,4 +1,8 @@
-"use strict";
+import { forge as forge$1 } from './forge.js';
+import './aes.js';
+import './sha256.js';
+import './prng.js';
+import './util.js';
 
 /**
  * An API for getting cryptographically-secure random bytes. The bytes are
@@ -15,16 +19,9 @@
  *
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
-var forge = require('./forge');
-require('./aes');
-require('./sha256');
-require('./prng');
-require('./util');
-;
+var forge = forge$1;
 // forge.random already defined
-if (forge.random && forge.random.getBytes) {
-  module.exports = forge.random;
-}
+if (forge.random && forge.random.getBytes) ;
 (function (jQuery) {
   // the default prng plugin, uses AES-128
   var prng_aes = {};
@@ -114,16 +111,11 @@ if (forge.random && forge.random.getBytes) {
   var globalScope = forge.util.globalScope;
   var _crypto = globalScope.crypto || globalScope.msCrypto;
   if (_crypto && _crypto.getRandomValues) {
-    getRandomValues = function (arr) {
+    getRandomValues = function getRandomValues(arr) {
       return _crypto.getRandomValues(arr);
     };
   }
-  if (forge.options.usePureJavaScript || !forge.util.isNodejs && !getRandomValues) {
-    // if this is a web worker, do not use weak entropy, instead register to
-    // receive strong entropy asynchronously from the main thread
-    if (typeof window === 'undefined' || window.document === undefined) {
-      // FIXME:
-    }
+  if (!forge.util.isNodejs && !getRandomValues) {
 
     // get load time entropy
     _ctx.collectInt(+new Date(), 32);
@@ -176,5 +168,4 @@ if (forge.random && forge.random.getBytes) {
 
   // expose spawn PRNG
   forge.random.createInstance = spawnPrng;
-  module.exports = forge.random;
 })(typeof jQuery !== 'undefined' ? jQuery : null);

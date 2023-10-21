@@ -1,7 +1,7 @@
-"use strict";
+import require$$0 from './_virtual/sjcl.js';
 
-var sjcl = require("./sjcl");
-var keyexchange = module.exports = sjcl.keyexchange = sjcl.keyexchange || {};
+var sjcl = require$$0;
+var keyexchange = sjcl.keyexchange = sjcl.keyexchange || {};
 var bn = sjcl.bn;
 /** @fileOverview Javascript SRP implementation.
  *
@@ -30,7 +30,7 @@ keyexchange.srp = {
                            to obtain this object.
    * @return {Object} A bitArray of SRP v.
    */
-  makeVerifier: function (I, P, s, group) {
+  makeVerifier: function makeVerifier(I, P, s, group) {
     var x;
     x = keyexchange.srp.makeX(I, P, s);
     x = bn.fromBits(x);
@@ -44,7 +44,7 @@ keyexchange.srp = {
    * @param {Object} s A bitArray of the salt.
    * @return {Object} A bitArray of SRP x.
    */
-  makeX: function (I, P, s) {
+  makeX: function makeX(I, P, s) {
     var inner = sjcl.hash.sha1.hash(I + ':' + P);
     return sjcl.hash.sha1.hash(sjcl.bitArray.concat(s, inner));
   },
@@ -53,7 +53,7 @@ keyexchange.srp = {
    * @param {String} i The size of the known SRP group.
    * @return {Object} An object with "N" and "g" properties.
    */
-  knownGroup: function (i) {
+  knownGroup: function knownGroup(i) {
     if (typeof i !== "string") {
       i = i.toString();
     }
@@ -67,7 +67,7 @@ keyexchange.srp = {
    * @private
    */
   _didInitKnownGroups: false,
-  _initKnownGroups: function () {
+  _initKnownGroups: function _initKnownGroups() {
     var i, size, group;
     for (i = 0; i < sjcl.keyexchange.srp._knownGroupSizes.length; i++) {
       size = keyexchange.srp._knownGroupSizes[i].toString();
