@@ -1,16 +1,34 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.codec.hex = {
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
+/** @fileOverview Bit array codec implementations.
+ *
+ * @author Emily Stark
+ * @author Mike Hamburg
+ * @author Dan Boneh
+ */
+
+/**
+ * Hexadecimal
+ * @namespace
+ */
+codec.hex = {
+  /** Convert from a bitArray to a hex string. */
   fromBits: function (arr) {
-    var out = "", i;
+    var out = "",
+      i;
     for (i = 0; i < arr.length; i++) {
-      out += ((arr[i] | 0) + 263882790666240).toString(16).substr(4);
+      out += ((arr[i] | 0) + 0xF00000000000).toString(16).substr(4);
     }
-    return out.substr(0, sjcl.bitArray.bitLength(arr) / 4);
+    return out.substr(0, sjcl.bitArray.bitLength(arr) / 4); //.replace(/(.{8})/g, "$1 ");
   },
+
+  /** Convert from a hex string to a bitArray. */
   toBits: function (str) {
-    var i, out = [], len;
+    var i,
+      out = [],
+      len;
     str = str.replace(/\s|0x/g, "");
     len = str.length;
     str = str + "00000000";
@@ -20,5 +38,3 @@ sjcl.codec.hex = {
     return sjcl.bitArray.clamp(out, len * 4);
   }
 };
-
-export { sjcl as default };

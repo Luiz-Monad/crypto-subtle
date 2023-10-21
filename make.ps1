@@ -14,7 +14,8 @@ function parallel ([ScriptBlock]$sb) {
 
 function bundler ($base, $target) {
         
-    Get-ChildItem (Join-path $base '*.js') -Recurse | 
+    Get-ChildItem (Join-path $base '*.js')  -Recurse | 
+    Where-Object { $_.FullName.Replace('\', '/') -notlike '*/bin/*' } |
     Select-Object -ExpandProperty fullname | 
     parallel {
         param($f)
@@ -36,8 +37,9 @@ function bundler ($base, $target) {
 # =====================================================================================
 
 bundler './node_modules/node-forge/lib/' 'vendor/forge'
-
 bundler './node_modules/sjcl/core/' 'vendor/sjcl'
-
 bundler './node_modules/rsa-compat/lib/' 'vendor/rsa'
+bundler './node_modules/keypairs/' 'vendor/keypairs'
+bundler './node_modules/eckles/lib/' 'vendor/eckles'
+bundler './node_modules/rasha/lib/' 'vendor/rasha'
 

@@ -1,5 +1,5 @@
 module.exports = function ({ types: t }) {
-  const processNamespaces = ['sjcl', 'forge'];
+  const processNamespaces = ['sjcl'];
   function last(arr) {
     return arr[arr.length - 1];
   }

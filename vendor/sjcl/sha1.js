@@ -1,7 +1,22 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.hash.sha1 = function (hash) {
+var sjcl = require("./sjcl");
+var hash = module.exports = sjcl.hash = sjcl.hash || {};
+var codec = sjcl.codec;
+var bitArray = sjcl.bitArray;
+/** @fileOverview Javascript SHA-1 implementation.
+ *
+ * Based on the implementation in RFC 3174, method 1, and on the SJCL
+ * SHA-256 implementation.
+ *
+ * @author Quinn Slack
+ */
+
+/**
+ * Context for a SHA-1 operation in progress.
+ * @constructor
+ */
+hash.sha1 = function (hash) {
   if (hash) {
     this._h = hash._h.slice(0);
     this._buffer = hash._buffer.slice(0);
@@ -10,26 +25,49 @@ sjcl.hash.sha1 = function (hash) {
     this.reset();
   }
 };
-sjcl.hash.sha1.hash = function (data) {
+
+/**
+ * Hash a string or an array of words.
+ * @static
+ * @param {bitArray|String} data the data to hash.
+ * @return {bitArray} The hash value, an array of 5 big-endian words.
+ */
+hash.sha1.hash = function (data) {
   return new sjcl.hash.sha1().update(data).finalize();
 };
-sjcl.hash.sha1.prototype = {
+hash.sha1.prototype = {
+  /**
+   * The hash's block size, in bits.
+   * @constant
+   */
   blockSize: 512,
+  /**
+   * Reset the hash state.
+   * @return this
+   */
   reset: function () {
     this._h = this._init.slice(0);
     this._buffer = [];
     this._length = 0;
     return this;
   },
+  /**
+   * Input several words to the hash.
+   * @param {bitArray|String} data the data to hash.
+   * @return this
+   */
   update: function (data) {
     if (typeof data === "string") {
-      data = sjcl.codec.utf8String.toBits(data);
+      data = codec.utf8String.toBits(data);
     }
-    var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data), ol = this._length, nl = this._length = ol + sjcl.bitArray.bitLength(data);
+    var i,
+      b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+      ol = this._length,
+      nl = this._length = ol + sjcl.bitArray.bitLength(data);
     if (nl > 9007199254740991) {
       throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
     }
-    if (typeof Uint32Array !== "undefined") {
+    if (typeof Uint32Array !== 'undefined') {
       var c = new Uint32Array(b);
       var j = 0;
       for (i = this.blockSize + ol - (this.blockSize + ol & this.blockSize - 1); i <= nl; i += this.blockSize) {
@@ -44,13 +82,24 @@ sjcl.hash.sha1.prototype = {
     }
     return this;
   },
+  /**
+   * Complete hashing and output the hash value.
+   * @return {bitArray} The hash value, an array of 5 big-endian words. TODO
+   */
   finalize: function () {
-    var i, b = this._buffer, h = this._h;
-    b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]);
+    var i,
+      b = this._buffer,
+      h = this._h;
+
+    // Round out and push the buffer
+    b = bitArray.concat(b, [bitArray.partial(1, 1)]);
+    // Round out the buffer to a multiple of 16 words, less the 2 length words.
     for (i = b.length + 2; i & 15; i++) {
       b.push(0);
     }
-    b.push(Math.floor(this._length / 4294967296));
+
+    // append the length
+    b.push(Math.floor(this._length / 0x100000000));
     b.push(this._length | 0);
     while (b.length) {
       this._block(b.splice(0, 16));
@@ -58,8 +107,20 @@ sjcl.hash.sha1.prototype = {
     this.reset();
     return h;
   },
-  _init: [1732584193, 4023233417, 2562383102, 271733878, 3285377520],
-  _key: [1518500249, 1859775393, 2400959708, 3395469782],
+  /**
+   * The SHA-1 initialization vector.
+   * @private
+   */
+  _init: [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0],
+  /**
+   * The SHA-1 hash key.
+   * @private
+   */
+  _key: [0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6],
+  /**
+   * The SHA-1 logical functions f(0), f(1), ..., f(79).
+   * @private
+   */
   _f: function (t, b, c, d) {
     if (t <= 19) {
       return b & c | ~b & d;
@@ -71,14 +132,35 @@ sjcl.hash.sha1.prototype = {
       return b ^ c ^ d;
     }
   },
+  /**
+   * Circular left-shift operator.
+   * @private
+   */
   _S: function (n, x) {
     return x << n | x >>> 32 - n;
   },
+  /**
+   * Perform one cycle of SHA-1.
+   * @param {Uint32Array|bitArray} words one block of words.
+   * @private
+   */
   _block: function (words) {
-    var t, tmp, a, b, c, d, e, h = this._h;
+    var t,
+      tmp,
+      a,
+      b,
+      c,
+      d,
+      e,
+      h = this._h;
     var w;
-    if (typeof Uint32Array !== "undefined") {
-      w = Array(80);
+    if (typeof Uint32Array !== 'undefined') {
+      // When words is passed to _block, it has 16 elements. SHA1 _block
+      // function extends words with new elements (at the end there are 80 elements). 
+      // The problem is that if we use Uint32Array instead of Array, 
+      // the length of Uint32Array cannot be changed. Thus, we replace words with a 
+      // normal Array here.
+      w = Array(80); // do not use Uint32Array here as the instantiation is slower
       for (var j = 0; j < 16; j++) {
         w[j] = words[j];
       }
@@ -108,5 +190,3 @@ sjcl.hash.sha1.prototype = {
     h[4] = h[4] + e | 0;
   }
 };
-
-export { sjcl as default };

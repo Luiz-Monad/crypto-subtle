@@ -1,36 +1,81 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.keyexchange.srp = {
+var sjcl = require("./sjcl");
+var keyexchange = module.exports = sjcl.keyexchange = sjcl.keyexchange || {};
+var bn = sjcl.bn;
+/** @fileOverview Javascript SRP implementation.
+ *
+ * This file contains a partial implementation of the SRP (Secure Remote
+ * Password) password-authenticated key exchange protocol. Given a user
+ * identity, salt, and SRP group, it generates the SRP verifier that may
+ * be sent to a remote server to establish and SRP account.
+ *
+ * For more information, see http://srp.stanford.edu/.
+ *
+ * @author Quinn Slack
+ */
+
+/**
+ * Compute the SRP verifier from the username, password, salt, and group.
+ * @namespace
+ */
+keyexchange.srp = {
+  /**
+   * Calculates SRP v, the verifier.
+   *   v = g^x mod N [RFC 5054]
+   * @param {String} I The username.
+   * @param {String} P The password.
+   * @param {Object} s A bitArray of the salt.
+   * @param {Object} group The SRP group. Use sjcl.keyexchange.srp.knownGroup
+                           to obtain this object.
+   * @return {Object} A bitArray of SRP v.
+   */
   makeVerifier: function (I, P, s, group) {
     var x;
-    x = sjcl.keyexchange.srp.makeX(I, P, s);
-    x = sjcl.bn.fromBits(x);
+    x = keyexchange.srp.makeX(I, P, s);
+    x = bn.fromBits(x);
     return group.g.powermod(x, group.N);
   },
+  /**
+   * Calculates SRP x.
+   *   x = SHA1(<salt> | SHA(<username> | ":" | <raw password>)) [RFC 2945]
+   * @param {String} I The username.
+   * @param {String} P The password.
+   * @param {Object} s A bitArray of the salt.
+   * @return {Object} A bitArray of SRP x.
+   */
   makeX: function (I, P, s) {
-    var inner = sjcl.hash.sha1.hash(I + ":" + P);
+    var inner = sjcl.hash.sha1.hash(I + ':' + P);
     return sjcl.hash.sha1.hash(sjcl.bitArray.concat(s, inner));
   },
+  /**
+   * Returns the known SRP group with the given size (in bits).
+   * @param {String} i The size of the known SRP group.
+   * @return {Object} An object with "N" and "g" properties.
+   */
   knownGroup: function (i) {
     if (typeof i !== "string") {
       i = i.toString();
     }
     if (!sjcl.keyexchange.srp._didInitKnownGroups) {
-      sjcl.keyexchange.srp._initKnownGroups();
+      keyexchange.srp._initKnownGroups();
     }
     return sjcl.keyexchange.srp._knownGroups[i];
   },
+  /**
+   * Initializes bignum objects for known group parameters.
+   * @private
+   */
   _didInitKnownGroups: false,
   _initKnownGroups: function () {
     var i, size, group;
     for (i = 0; i < sjcl.keyexchange.srp._knownGroupSizes.length; i++) {
-      size = sjcl.keyexchange.srp._knownGroupSizes[i].toString();
-      group = sjcl.keyexchange.srp._knownGroups[size];
-      group.N = new sjcl.bn(group.N);
-      group.g = new sjcl.bn(group.g);
+      size = keyexchange.srp._knownGroupSizes[i].toString();
+      group = keyexchange.srp._knownGroups[size];
+      group.N = new bn(group.N);
+      group.g = new bn(group.g);
     }
-    sjcl.keyexchange.srp._didInitKnownGroups = true;
+    keyexchange.srp._didInitKnownGroups = true;
   },
   _knownGroupSizes: [1024, 1536, 2048, 3072, 4096, 6144, 8192],
   _knownGroups: {
@@ -64,5 +109,3 @@ sjcl.keyexchange.srp = {
     }
   }
 };
-
-export { sjcl as default };

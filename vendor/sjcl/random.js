@@ -1,9 +1,58 @@
-import 'module';
-import 'crypto';
+"use strict";
 
-var sjcl = global.sjcl;
+var sjcl = require("./sjcl");
+var prng = module.exports = sjcl.prng = sjcl.prng || {};
+var hash = sjcl.hash;
+var cipher = sjcl.cipher;
+var random = sjcl.random;
+/** @fileOverview Random number generator.
+ *
+ * @author Emily Stark
+ * @author Mike Hamburg
+ * @author Dan Boneh
+ * @author Michael Brooks
+ * @author Steve Thomas
+ */
+
+/** 
+ * @class Random number generator
+ * @description
+ * <b>Use sjcl.random as a singleton for this class!</b>
+ * <p>
+ * This random number generator is a derivative of Ferguson and Schneier's
+ * generator Fortuna.  It collects entropy from various events into several
+ * pools, implemented by streaming SHA-256 instances.  It differs from
+ * ordinary Fortuna in a few ways, though.
+ * </p>
+ *
+ * <p>
+ * Most importantly, it has an entropy estimator.  This is present because
+ * there is a strong conflict here between making the generator available
+ * as soon as possible, and making sure that it doesn't "run on empty".
+ * In Fortuna, there is a saved state file, and the system is likely to have
+ * time to warm up.
+ * </p>
+ *
+ * <p>
+ * Second, because users are unlikely to stay on the page for very long,
+ * and to speed startup time, the number of pools increases logarithmically:
+ * a new pool is created when the previous one is actually used for a reseed.
+ * This gives the same asymptotic guarantees as Fortuna, but gives more
+ * entropy to early reseeds.
+ * </p>
+ *
+ * <p>
+ * The entire mechanism here feels pretty klunky.  Furthermore, there are
+ * several improvements that should be made, including support for
+ * dedicated cryptographic functions that may be present in some browsers;
+ * state files in local storage; cookies containing randomness; etc.  So
+ * look for improvements in future versions.
+ * </p>
+ * @constructor
+ */
 sjcl.prng = function (defaultParanoia) {
-  this._pools = [new sjcl.hash.sha256()];
+  /* private */
+  this._pools = [new hash.sha256()];
   this._poolEntropy = [0];
   this._reseedCount = 0;
   this._robins = {};
@@ -17,12 +66,16 @@ sjcl.prng = function (defaultParanoia) {
   this._counter = [0, 0, 0, 0];
   this._cipher = undefined;
   this._defaultParanoia = defaultParanoia;
+
+  /* event listener stuff */
   this._collectorsStarted = false;
   this._callbacks = {
     progress: {},
     seeded: {}
   };
   this._callbackI = 0;
+
+  /* constants */
   this._NOT_READY = 0;
   this._READY = 1;
   this._REQUIRES_RESEED = 2;
@@ -31,9 +84,16 @@ sjcl.prng = function (defaultParanoia) {
   this._MILLISECONDS_PER_RESEED = 30000;
   this._BITS_PER_RESEED = 80;
 };
-sjcl.prng.prototype = {
+prng.prototype = {
+  /** Generate several random words, and return them in an array.
+   * A word consists of 32 bits (4 bytes)
+   * @param {Number} nwords The number of words to generate.
+   */
   randomWords: function (nwords, paranoia) {
-    var out = [], i, readiness = this.isReady(paranoia), g;
+    var out = [],
+      i,
+      readiness = this.isReady(paranoia),
+      g;
     if (readiness === this._NOT_READY) {
       throw new sjcl.exception.notReady("generator isn't seeded");
     } else if (readiness & this._REQUIRES_RESEED) {
@@ -55,9 +115,22 @@ sjcl.prng.prototype = {
     }
     this._defaultParanoia = paranoia;
   },
+  /**
+   * Add entropy to the pools.
+   * @param data The entropic value.  Should be a 32-bit integer, array of 32-bit integers, or string
+   * @param {Number} estimatedEntropy The estimated entropy of data, in bits
+   * @param {String} source The source of the entropy, eg "mouse"
+   */
   addEntropy: function (data, estimatedEntropy, source) {
     source = source || "user";
-    var id, i, tmp, t = new Date().valueOf(), robin = this._robins[source], oldReady = this.isReady(), err = 0, objName;
+    var id,
+      i,
+      tmp,
+      t = new Date().valueOf(),
+      robin = this._robins[source],
+      oldReady = this.isReady(),
+      err = 0,
+      objName;
     id = this._collectorIds[source];
     if (id === undefined) {
       id = this._collectorIds[source] = this._collectorIdNext++;
@@ -93,6 +166,7 @@ sjcl.prng.prototype = {
         }
         if (!err) {
           if (estimatedEntropy === undefined) {
+            /* horrible entropy estimator */
             estimatedEntropy = 0;
             for (i = 0; i < data.length; i++) {
               tmp = data[i];
@@ -107,6 +181,10 @@ sjcl.prng.prototype = {
         break;
       case "string":
         if (estimatedEntropy === undefined) {
+          /* English text has just over 1 bit per character of entropy.
+           * But this might be HTML or something, and have far less
+           * entropy than English...  Oh well, let's just say one bit.
+           */
           estimatedEntropy = data.length;
         }
         this._pools[robin].update([id, this._eventId++, 3, estimatedEntropy, t, data.length]);
@@ -118,8 +196,12 @@ sjcl.prng.prototype = {
     if (err) {
       throw new sjcl.exception.bug("random: addEntropy only supports number, array of numbers or string");
     }
+
+    /* record the new strength */
     this._poolEntropy[robin] += estimatedEntropy;
     this._poolStrength += estimatedEntropy;
+
+    /* fire off events */
     if (oldReady === this._NOT_READY) {
       if (this.isReady() !== this._NOT_READY) {
         this._fireEvent("seeded", Math.max(this._strength, this._poolStrength));
@@ -127,6 +209,7 @@ sjcl.prng.prototype = {
       this._fireEvent("progress", this.getProgress());
     }
   },
+  /** Is the generator ready? */
   isReady: function (paranoia) {
     var entropyRequired = this._PARANOIA_LEVELS[paranoia !== undefined ? paranoia : this._defaultParanoia];
     if (this._strength && this._strength >= entropyRequired) {
@@ -135,14 +218,16 @@ sjcl.prng.prototype = {
       return this._poolStrength >= entropyRequired ? this._REQUIRES_RESEED | this._NOT_READY : this._NOT_READY;
     }
   },
+  /** Get the generator's progress toward readiness, as a fraction */
   getProgress: function (paranoia) {
     var entropyRequired = this._PARANOIA_LEVELS[paranoia ? paranoia : this._defaultParanoia];
     if (this._strength >= entropyRequired) {
-      return 1;
+      return 1.0;
     } else {
-      return this._poolStrength > entropyRequired ? 1 : this._poolStrength / entropyRequired;
+      return this._poolStrength > entropyRequired ? 1.0 : this._poolStrength / entropyRequired;
     }
   },
+  /** start the built-in entropy collectors */
   startCollectors: function () {
     if (this._collectorsStarted) {
       return;
@@ -169,6 +254,7 @@ sjcl.prng.prototype = {
     }
     this._collectorsStarted = true;
   },
+  /** stop the built-in entropy collectors */
   stopCollectors: function () {
     if (!this._collectorsStarted) {
       return;
@@ -186,11 +272,26 @@ sjcl.prng.prototype = {
     }
     this._collectorsStarted = false;
   },
+  /* use a cookie to store entropy.
+  useCookie: function (all_cookies) {
+      throw new sjcl.exception.bug("random: useCookie is unimplemented");
+  },*/
+
+  /** add an event listener for progress or seeded-ness. */
   addEventListener: function (name, callback) {
     this._callbacks[name][this._callbackI++] = callback;
   },
+  /** remove an event listener for progress or seeded-ness */
   removeEventListener: function (name, cb) {
-    var i, j, cbs = this._callbacks[name], jsTemp = [];
+    var i,
+      j,
+      cbs = this._callbacks[name],
+      jsTemp = [];
+
+    /* I'm not sure if this is necessary; in C++, iterating over a
+     * collection and modifying it at the same time is a no-no.
+     */
+
     for (j in cbs) {
       if (cbs.hasOwnProperty(j) && cbs[j] === cb) {
         jsTemp.push(j);
@@ -207,6 +308,9 @@ sjcl.prng.prototype = {
       func.apply(that, arguments);
     };
   },
+  /** Generate 4 random words, no reseed, no gate.
+   * @private
+   */
   _gen4words: function () {
     for (var i = 0; i < 4; i++) {
       this._counter[i] = this._counter[i] + 1 | 0;
@@ -216,13 +320,19 @@ sjcl.prng.prototype = {
     }
     return this._cipher.encrypt(this._counter);
   },
+  /* Rekey the AES instance with itself after a request, or every _MAX_WORDS_PER_BURST words.
+   * @private
+   */
   _gate: function () {
     this._key = this._gen4words().concat(this._gen4words());
-    this._cipher = new sjcl.cipher.aes(this._key);
+    this._cipher = new cipher.aes(this._key);
   },
+  /** Reseed the generator with the given words
+   * @private
+   */
   _reseed: function (seedWords) {
-    this._key = sjcl.hash.sha256.hash(this._key.concat(seedWords));
-    this._cipher = new sjcl.cipher.aes(this._key);
+    this._key = hash.sha256.hash(this._key.concat(seedWords));
+    this._cipher = new cipher.aes(this._key);
     for (var i = 0; i < 4; i++) {
       this._counter[i] = this._counter[i] + 1 | 0;
       if (this._counter[i]) {
@@ -230,11 +340,19 @@ sjcl.prng.prototype = {
       }
     }
   },
+  /** reseed the data from the entropy pools
+   * @param full If set, use all the entropy pools in the reseed.
+   */
   _reseedFromPools: function (full) {
-    var reseedData = [], strength = 0, i;
+    var reseedData = [],
+      strength = 0,
+      i;
     this._nextReseed = reseedData[0] = new Date().valueOf() + this._MILLISECONDS_PER_RESEED;
     for (i = 0; i < 16; i++) {
-      reseedData.push(Math.random() * 4294967296 | 0);
+      /* On some browsers, this is cryptographically random.  So we might
+       * as well toss it in the pot and stir...
+       */
+      reseedData.push(Math.random() * 0x100000000 | 0);
     }
     for (i = 0; i < this._pools.length; i++) {
       reseedData = reseedData.concat(this._pools[i].finalize());
@@ -244,10 +362,14 @@ sjcl.prng.prototype = {
         break;
       }
     }
+
+    /* if we used the last pool, push a new one onto the stack */
     if (this._reseedCount >= 1 << this._pools.length) {
-      this._pools.push(new sjcl.hash.sha256());
+      this._pools.push(new hash.sha256());
       this._poolEntropy.push(0);
     }
+
+    /* how strong was this reseed? */
     this._poolStrength -= strength;
     if (strength > this._strength) {
       this._strength = strength;
@@ -264,6 +386,7 @@ sjcl.prng.prototype = {
       x = ev.x || ev.clientX || ev.offsetX || 0;
       y = ev.y || ev.clientY || ev.offsetY || 0;
     } catch (err) {
+      // Event originated from a secure element. No mouse position available.
       x = 0;
       y = 0;
     }
@@ -274,7 +397,8 @@ sjcl.prng.prototype = {
   },
   _touchCollector: function (ev) {
     var touch = ev.touches[0] || ev.changedTouches[0];
-    var x = touch.pageX || touch.clientX, y = touch.pageY || touch.clientY;
+    var x = touch.pageX || touch.clientX,
+      y = touch.pageY || touch.clientY;
     this.addEntropy([x, y], 1, "touch");
     this._addCurrentTimeToEntropy(0);
   },
@@ -282,7 +406,8 @@ sjcl.prng.prototype = {
     this._addCurrentTimeToEntropy(2);
   },
   _addCurrentTimeToEntropy: function (estimatedEntropy) {
-    if (typeof window !== "undefined" && window.performance && typeof window.performance.now === "function") {
+    if (typeof window !== 'undefined' && window.performance && typeof window.performance.now === "function") {
+      //how much entropy do we want to add here?
       this.addEntropy(window.performance.now(), estimatedEntropy, "loadtime");
     } else {
       this.addEntropy(new Date().valueOf(), estimatedEntropy, "loadtime");
@@ -302,7 +427,15 @@ sjcl.prng.prototype = {
     this._addCurrentTimeToEntropy(0);
   },
   _fireEvent: function (name, arg) {
-    var j, cbs = sjcl.random._callbacks[name], cbsTemp = [];
+    var j,
+      cbs = sjcl.random._callbacks[name],
+      cbsTemp = [];
+    /* TODO: there is a race condition between removing collectors and firing them */
+
+    /* I'm not sure if this is necessary; in C++, iterating over a
+     * collection and modifying it at the same time is a no-no.
+     */
+
     for (j in cbs) {
       if (cbs.hasOwnProperty(j)) {
         cbsTemp.push(cbs[j]);
@@ -313,34 +446,45 @@ sjcl.prng.prototype = {
     }
   }
 };
+
+/** an instance for the prng.
+* @see sjcl.prng
+*/
 sjcl.random = new sjcl.prng(6);
+;
+// function for getting nodejs crypto module. catches and ignores errors.
 function getCryptoModule() {
   try {
-    return require("crypto");
+    return require('crypto');
   } catch (e) {
     return null;
   }
 }
 try {
   var buf, crypt, ab;
-  if (typeof module !== "undefined" && module.exports && (crypt = getCryptoModule()) && crypt.randomBytes) {
+
+  // get cryptographically strong entropy depending on runtime environment
+  if (typeof module !== 'undefined' && module.exports && (crypt = getCryptoModule()) && crypt.randomBytes) {
     buf = crypt.randomBytes(1024 / 8);
     buf = new Uint32Array(new Uint8Array(buf).buffer);
-    sjcl.random.addEntropy(buf, 1024, "crypto.randomBytes");
-  } else if (typeof window !== "undefined" && typeof Uint32Array !== "undefined") {
+    random.addEntropy(buf, 1024, "crypto.randomBytes");
+  } else if (typeof window !== 'undefined' && typeof Uint32Array !== 'undefined') {
     ab = new Uint32Array(32);
     if (window.crypto && window.crypto.getRandomValues) {
       window.crypto.getRandomValues(ab);
     } else if (window.msCrypto && window.msCrypto.getRandomValues) {
       window.msCrypto.getRandomValues(ab);
     } else {}
-    sjcl.random.addEntropy(ab, 1024, "crypto.getRandomValues");
-  } else {}
+
+    // get cryptographically strong entropy in Webkit
+    random.addEntropy(ab, 1024, "crypto.getRandomValues");
+  } else {
+    // no getRandomValues :-(
+  }
 } catch (e) {
-  if (typeof window !== "undefined" && window.console) {
+  if (typeof window !== 'undefined' && window.console) {
     console.log("There was an error collecting entropy from the browser:");
     console.log(e);
+    //we do not want the library to fail due to randomness not being maintained.
   }
 }
-
-export { sjcl as default };

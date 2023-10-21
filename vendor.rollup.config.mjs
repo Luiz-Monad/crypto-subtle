@@ -9,9 +9,11 @@ import Glob from 'glob';
 const glob = (patt) => (cwd) => Glob.sync(patt, { cwd });
 
 const vendored = {
-  forge: ['./node_modules/node-forge/lib', 'index.js'],
   sjcl: ['./node_modules/sjcl/core', glob('*')],
+  forge: ['./node_modules/node-forge/lib', 'index.js'],
   rsa: ['./node_modules/rsa-compat/lib', 'rsa.js'],
+  eckles: ['./node_modules/eckles/lib', 'eckles.js'],
+  rasha: ['./node_modules/rasha/lib', 'rasha.js'],
 }
 
 const entrypoint = (root, input) =>
@@ -47,6 +49,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     'module',
     'buffer',
     'buffer-v6-polyfill',
+    'keypairs',
     'node-forge',
     'ursa',
     'ursa-optional',

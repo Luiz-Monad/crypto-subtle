@@ -1,14 +1,36 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.codec.base64 = {
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
+var bitArray = sjcl.bitArray;
+/** @fileOverview Bit array codec implementations.
+ *
+ * @author Emily Stark
+ * @author Mike Hamburg
+ * @author Dan Boneh
+ */
+
+/**
+ * Base64 encoding/decoding 
+ * @namespace
+ */
+codec.base64 = {
+  /** The base64 alphabet.
+   * @private
+   */
   _chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+  /** Convert from a bitArray to a base64 string. */
   fromBits: function (arr, _noEquals, _url) {
-    var out = "", i, bits = 0, c = sjcl.codec.base64._chars, ta = 0, bl = sjcl.bitArray.bitLength(arr);
+    var out = "",
+      i,
+      bits = 0,
+      c = sjcl.codec.base64._chars,
+      ta = 0,
+      bl = sjcl.bitArray.bitLength(arr);
     if (_url) {
-      c = c.substr(0, 62) + "-_";
+      c = c.substr(0, 62) + '-_';
     }
-    for (i = 0; out.length * 6 < bl; ) {
+    for (i = 0; out.length * 6 < bl;) {
       out += c.charAt((ta ^ arr[i] >>> bits) >>> 26);
       if (bits < 6) {
         ta = arr[i] << 6 - bits;
@@ -24,11 +46,17 @@ sjcl.codec.base64 = {
     }
     return out;
   },
+  /** Convert from a base64 string to a bitArray */
   toBits: function (str, _url) {
-    str = str.replace(/\s|=/g, "");
-    var out = [], i, bits = 0, c = sjcl.codec.base64._chars, ta = 0, x;
+    str = str.replace(/\s|=/g, '');
+    var out = [],
+      i,
+      bits = 0,
+      c = sjcl.codec.base64._chars,
+      ta = 0,
+      x;
     if (_url) {
-      c = c.substr(0, 62) + "-_";
+      c = c.substr(0, 62) + '-_';
     }
     for (i = 0; i < str.length; i++) {
       x = c.indexOf(str.charAt(i));
@@ -45,12 +73,12 @@ sjcl.codec.base64 = {
       }
     }
     if (bits & 56) {
-      out.push(sjcl.bitArray.partial(bits & 56, ta, 1));
+      out.push(bitArray.partial(bits & 56, ta, 1));
     }
     return out;
   }
 };
-sjcl.codec.base64url = {
+codec.base64url = {
   fromBits: function (arr) {
     return sjcl.codec.base64.fromBits(arr, 1, 1);
   },
@@ -58,5 +86,3 @@ sjcl.codec.base64url = {
     return sjcl.codec.base64.toBits(str, 1);
   }
 };
-
-export { sjcl as default };

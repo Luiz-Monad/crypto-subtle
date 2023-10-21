@@ -1,7 +1,19 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.hash.ripemd160 = function (hash) {
+var sjcl = require("./sjcl");
+var hash = module.exports = sjcl.hash = sjcl.hash || {};
+var codec = sjcl.codec;
+var bitArray = sjcl.bitArray;
+;
+/** @fileOverview Javascript RIPEMD-160 implementation.
+ *
+ * @author Artem S Vybornov <vybornov@gmail.com>
+ */
+/**
+ * Context for a RIPEMD-160 operation in progress.
+ * @constructor
+ */
+hash.ripemd160 = function (hash) {
   if (hash) {
     this._h = hash._h.slice(0);
     this._buffer = hash._buffer.slice(0);
@@ -10,19 +22,38 @@ sjcl.hash.ripemd160 = function (hash) {
     this.reset();
   }
 };
-sjcl.hash.ripemd160.hash = function (data) {
+
+/**
+ * Hash a string or an array of words.
+ * @static
+ * @param {bitArray|String} data the data to hash.
+ * @return {bitArray} The hash value, an array of 5 big-endian words.
+ */
+hash.ripemd160.hash = function (data) {
   return new sjcl.hash.ripemd160().update(data).finalize();
 };
-sjcl.hash.ripemd160.prototype = {
+hash.ripemd160.prototype = {
+  /**
+   * Reset the hash state.
+   * @return this
+   */
   reset: function () {
     this._h = _h0.slice(0);
     this._buffer = [];
     this._length = 0;
     return this;
   },
+  /**
+   * Reset the hash state.
+   * @param {bitArray|String} data the data to hash.
+   * @return this
+   */
   update: function (data) {
-    if (typeof data === "string") data = sjcl.codec.utf8String.toBits(data);
-    var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data), ol = this._length, nl = this._length = ol + sjcl.bitArray.bitLength(data);
+    if (typeof data === "string") data = codec.utf8String.toBits(data);
+    var i,
+      b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+      ol = this._length,
+      nl = this._length = ol + sjcl.bitArray.bitLength(data);
     if (nl > 9007199254740991) {
       throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
     }
@@ -33,12 +64,19 @@ sjcl.hash.ripemd160.prototype = {
     }
     return this;
   },
+  /**
+   * Complete hashing and output the hash value.
+   * @return {bitArray} The hash value, an array of 5 big-endian words.
+   */
   finalize: function () {
-    var b = sjcl.bitArray.concat(this._buffer, [sjcl.bitArray.partial(1, 1)]), l = (this._length + 1) % 512, z = (l > 448 ? 512 : 448) - l % 448, zp = z % 32;
-    if (zp > 0) b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(zp, 0)]);
+    var b = sjcl.bitArray.concat(this._buffer, [sjcl.bitArray.partial(1, 1)]),
+      l = (this._length + 1) % 512,
+      z = (l > 448 ? 512 : 448) - l % 448,
+      zp = z % 32;
+    if (zp > 0) b = bitArray.concat(b, [bitArray.partial(zp, 0)]);
     for (; z >= 32; z -= 32) b.push(0);
     b.push(_cvt(this._length | 0));
-    b.push(_cvt(Math.floor(this._length / 4294967296)));
+    b.push(_cvt(Math.floor(this._length / 0x100000000)));
     while (b.length) {
       var words = b.splice(0, 16);
       for (var w = 0; w < 16; ++w) words[w] = _cvt(words[w]);
@@ -50,9 +88,9 @@ sjcl.hash.ripemd160.prototype = {
     return h;
   }
 };
-var _h0 = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
-var _k1 = [0, 1518500249, 1859775393, 2400959708, 2840853838];
-var _k2 = [1352829926, 1548603684, 1836072691, 2053994217, 0];
+var _h0 = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+var _k1 = [0x00000000, 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xa953fd4e];
+var _k2 = [0x50a28be6, 0x5c4dd124, 0x6d703ef3, 0x7a6d76e9, 0x00000000];
 for (var i = 4; i >= 0; --i) {
   for (var j = 1; j < 16; ++j) {
     _k1.splice(i, 0, _k1[i]);
@@ -82,11 +120,21 @@ function _rol(n, l) {
   return n << l | n >>> 32 - l;
 }
 function _cvt(n) {
-  return (n & 255 << 0) << 24 | (n & 255 << 8) << 8 | (n & 255 << 16) >>> 8 | (n & 255 << 24) >>> 24;
+  return (n & 0xff << 0) << 24 | (n & 0xff << 8) << 8 | (n & 0xff << 16) >>> 8 | (n & 0xff << 24) >>> 24;
 }
 function _block(X) {
-  var A1 = this._h[0], B1 = this._h[1], C1 = this._h[2], D1 = this._h[3], E1 = this._h[4], A2 = this._h[0], B2 = this._h[1], C2 = this._h[2], D2 = this._h[3], E2 = this._h[4];
-  var j = 0, T;
+  var A1 = this._h[0],
+    B1 = this._h[1],
+    C1 = this._h[2],
+    D1 = this._h[3],
+    E1 = this._h[4],
+    A2 = this._h[0],
+    B2 = this._h[1],
+    C2 = this._h[2],
+    D2 = this._h[3],
+    E2 = this._h[4];
+  var j = 0,
+    T;
   for (; j < 16; ++j) {
     T = _rol(A1 + _f0(B1, C1, D1) + X[_r1[j]] + _k1[j], _s1[j]) + E1;
     A1 = E1;
@@ -164,5 +212,3 @@ function _block(X) {
   this._h[4] = this._h[0] + B1 + C2;
   this._h[0] = T;
 }
-
-export { sjcl as default };

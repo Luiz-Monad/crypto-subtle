@@ -20,12 +20,7 @@
     "type": "git",
     "url": "https://github.com/Luiz-Monad/crypto-subtle.git"
   },
-  "dependencies": {
-    "buffer": "^6.0.3",
-    "polyfill-promise": "^4.0.1"
-  },
   "optionalDependencies": {
-    "ecc-jsbn": "0.0.1",
     "ecc-qj": "https://github.com/mitar/ecc/tarball/6b03a1899434641c81b498a3f67146b380ed123a"
   },
   "devDependencies": {
@@ -40,7 +35,9 @@
     "@rollup/plugin-replace": "^5.0.4",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
-    "node-forge": "^0.6.49",
+    "buffer": "^6.0.3",
+    "ecc-jsbn": "^0.2.0",
+    "node-forge": "^1.3.1",
     "rollup": "^4.1.4",
     "rsa-compat": "^2.0.8",
     "sjcl": "^1.0.8"

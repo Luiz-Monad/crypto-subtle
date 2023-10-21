@@ -1,19 +1,44 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.codec.base32 = {
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
+var bitArray = sjcl.bitArray;
+/** @fileOverview Bit array codec implementations.
+ *
+ * @author Nils Kenneweg
+ */
+
+/**
+ * Base32 encoding/decoding
+ * @namespace
+ */
+codec.base32 = {
+  /** The base32 alphabet.
+   * @private
+   */
   _chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",
   _hexChars: "0123456789ABCDEFGHIJKLMNOPQRSTUV",
+  /* bits in an array */
   BITS: 32,
+  /* base to encode at (2^x) */
   BASE: 5,
+  /* bits - base */
   REMAINING: 27,
+  /** Convert from a bitArray to a base32 string. */
   fromBits: function (arr, _noEquals, _hex) {
-    sjcl.codec.base32.BITS; var BASE = sjcl.codec.base32.BASE, REMAINING = sjcl.codec.base32.REMAINING;
-    var out = "", i, bits = 0, c = sjcl.codec.base32._chars, ta = 0, bl = sjcl.bitArray.bitLength(arr);
+    var BITS = sjcl.codec.base32.BITS,
+      BASE = sjcl.codec.base32.BASE,
+      REMAINING = sjcl.codec.base32.REMAINING;
+    var out = "",
+      i,
+      bits = 0,
+      c = sjcl.codec.base32._chars,
+      ta = 0,
+      bl = sjcl.bitArray.bitLength(arr);
     if (_hex) {
-      c = sjcl.codec.base32._hexChars;
+      c = codec.base32._hexChars;
     }
-    for (i = 0; out.length * BASE < bl; ) {
+    for (i = 0; out.length * BASE < bl;) {
       out += c.charAt((ta ^ arr[i] >>> bits) >>> REMAINING);
       if (bits < BASE) {
         ta = arr[i] << BASE - bits;
@@ -29,17 +54,27 @@ sjcl.codec.base32 = {
     }
     return out;
   },
+  /** Convert from a base32 string to a bitArray */
   toBits: function (str, _hex) {
-    str = str.replace(/\s|=/g, "").toUpperCase();
-    var BITS = sjcl.codec.base32.BITS, BASE = sjcl.codec.base32.BASE, REMAINING = sjcl.codec.base32.REMAINING;
-    var out = [], i, bits = 0, c = sjcl.codec.base32._chars, ta = 0, x, format = "base32";
+    str = str.replace(/\s|=/g, '').toUpperCase();
+    var BITS = sjcl.codec.base32.BITS,
+      BASE = sjcl.codec.base32.BASE,
+      REMAINING = sjcl.codec.base32.REMAINING;
+    var out = [],
+      i,
+      bits = 0,
+      c = sjcl.codec.base32._chars,
+      ta = 0,
+      x,
+      format = "base32";
     if (_hex) {
-      c = sjcl.codec.base32._hexChars;
+      c = codec.base32._hexChars;
       format = "base32hex";
     }
     for (i = 0; i < str.length; i++) {
       x = c.indexOf(str.charAt(i));
       if (x < 0) {
+        // Invalid character, try hex format
         if (!_hex) {
           try {
             return sjcl.codec.base32hex.toBits(str);
@@ -57,12 +92,12 @@ sjcl.codec.base32 = {
       }
     }
     if (bits & 56) {
-      out.push(sjcl.bitArray.partial(bits & 56, ta, 1));
+      out.push(bitArray.partial(bits & 56, ta, 1));
     }
     return out;
   }
 };
-sjcl.codec.base32hex = {
+codec.base32hex = {
   fromBits: function (arr, _noEquals) {
     return sjcl.codec.base32.fromBits(arr, _noEquals, 1);
   },
@@ -70,5 +105,3 @@ sjcl.codec.base32hex = {
     return sjcl.codec.base32.toBits(str, 1);
   }
 };
-
-export { sjcl as default };

@@ -14,7 +14,6 @@ var OPS = ["generateKey", "importKey", "exportKey", "sign", "verify", "encrypt",
 var nonce = NodeCrypto.randomBytes(64).toString("hex")
 var Bufferize = require('./bufferize')
 global.FORGE = require("node-forge")
-global.Promise =  require("polyfill-promise")
 var Subtle = {}
 var JS = {}
 JS.generateKey = require("./node/generateKey")

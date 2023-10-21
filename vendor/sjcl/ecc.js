@@ -1,8 +1,24 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
+var sjcl = require("./sjcl");
+var ecc = module.exports = sjcl.ecc = sjcl.ecc || {};
+var bn = sjcl.bn;
+var codec = sjcl.codec;
+var bitArray = sjcl.bitArray;
+/**
+ * base class for all ecc operations.
+ * @namespace
+ */
 sjcl.ecc = {};
-sjcl.ecc.point = function (curve, x, y) {
+
+/**
+ * Represents a point on a curve in affine coordinates.
+ * @constructor
+ * @param {sjcl.ecc.curve} curve The curve that this point lies on.
+ * @param {bigInt} x The x coordinate.
+ * @param {bigInt} y The y coordinate.
+ */
+ecc.point = function (curve, x, y) {
   if (x === undefined) {
     this.isIdentity = true;
   } else {
@@ -18,13 +34,20 @@ sjcl.ecc.point = function (curve, x, y) {
   }
   this.curve = curve;
 };
-sjcl.ecc.point.prototype = {
+ecc.point.prototype = {
   toJac: function () {
     return new sjcl.ecc.pointJac(this.curve, this.x, this.y, new this.curve.field(1));
   },
   mult: function (k) {
     return this.toJac().mult(k, this).toAffine();
   },
+  /**
+   * Multiply this point by k, added to affine2*k2, and return the answer in Jacobian coordinates.
+   * @param {bigInt} k The coefficient to multiply this by.
+   * @param {bigInt} k2 The coefficient to multiply affine2 this by.
+   * @param {sjcl.ecc.point} affine The other point in affine coordinates.
+   * @return {sjcl.ecc.pointJac} The result of the multiplication and addition, in Jacobian coordinates.
+   */
   mult2: function (k, k2, affine2) {
     return this.toJac().mult2(k, this, k2, affine2).toAffine();
   },
@@ -32,7 +55,7 @@ sjcl.ecc.point.prototype = {
     var m, i, j;
     if (this._multiples === undefined) {
       j = this.toJac().doubl();
-      m = this._multiples = [new sjcl.ecc.point(this.curve), this, j.toAffine()];
+      m = this._multiples = [new ecc.point(this.curve), this, j.toAffine()];
       for (i = 3; i < 16; i++) {
         j = j.add(this);
         m.push(j.toAffine());
@@ -51,7 +74,18 @@ sjcl.ecc.point.prototype = {
     return sjcl.bitArray.concat(this.x.toBits(), this.y.toBits());
   }
 };
-sjcl.ecc.pointJac = function (curve, x, y, z) {
+
+/**
+ * Represents a point on a curve in Jacobian coordinates. Coordinates can be specified as bigInts or strings (which
+ * will be converted to bigInts).
+ *
+ * @constructor
+ * @param {bigInt/string} x The x coordinate.
+ * @param {bigInt/string} y The y coordinate.
+ * @param {bigInt/string} z The z coordinate.
+ * @param {sjcl.ecc.curve} curve The curve that this point lies on.
+ */
+ecc.pointJac = function (curve, x, y, z) {
   if (x === undefined) {
     this.isIdentity = true;
   } else {
@@ -62,9 +96,26 @@ sjcl.ecc.pointJac = function (curve, x, y, z) {
   }
   this.curve = curve;
 };
-sjcl.ecc.pointJac.prototype = {
+ecc.pointJac.prototype = {
+  /**
+   * Adds S and T and returns the result in Jacobian coordinates. Note that S must be in Jacobian coordinates and T must be in affine coordinates.
+   * @param {sjcl.ecc.pointJac} S One of the points to add, in Jacobian coordinates.
+   * @param {sjcl.ecc.point} T The other point to add, in affine coordinates.
+   * @return {sjcl.ecc.pointJac} The sum of the two points, in Jacobian coordinates.
+   */
   add: function (T) {
-    var S = this, sz2, c, d, c2, x1, x2, x, y1, y2, y, z;
+    var S = this,
+      sz2,
+      c,
+      d,
+      c2,
+      x1,
+      x2,
+      x,
+      y1,
+      y2,
+      y,
+      z;
     if (S.curve !== T.curve) {
       throw new sjcl.exception.invalid("sjcl.ecc.add(): Points must be on the same curve to add them!");
     }
@@ -77,8 +128,10 @@ sjcl.ecc.pointJac.prototype = {
     c = T.x.mul(sz2).subM(S.x);
     if (c.equals(0)) {
       if (S.y.equals(T.y.mul(sz2.mul(S.z)))) {
+        // same point
         return S.doubl();
       } else {
+        // inverses
         return new sjcl.ecc.pointJac(S.curve);
       }
     }
@@ -93,34 +146,67 @@ sjcl.ecc.pointJac.prototype = {
     z = S.z.mul(c);
     return new sjcl.ecc.pointJac(this.curve, x, y, z);
   },
+  /**
+   * doubles this point.
+   * @return {sjcl.ecc.pointJac} The doubled point.
+   */
   doubl: function () {
     if (this.isIdentity) {
       return this;
     }
-    var y2 = this.y.square(), a = y2.mul(this.x.mul(4)), b = y2.square().mul(8), z2 = this.z.square(), c = this.curve.a.toString() == new sjcl.bn(-3).toString() ? this.x.sub(z2).mul(3).mul(this.x.add(z2)) : this.x.square().mul(3).add(z2.square().mul(this.curve.a)), x = c.square().subM(a).subM(a), y = a.sub(x).mul(c).subM(b), z = this.y.add(this.y).mul(this.z);
+    var y2 = this.y.square(),
+      a = y2.mul(this.x.mul(4)),
+      b = y2.square().mul(8),
+      z2 = this.z.square(),
+      c = this.curve.a.toString() == new sjcl.bn(-3).toString() ? this.x.sub(z2).mul(3).mul(this.x.add(z2)) : this.x.square().mul(3).add(z2.square().mul(this.curve.a)),
+      x = c.square().subM(a).subM(a),
+      y = a.sub(x).mul(c).subM(b),
+      z = this.y.add(this.y).mul(this.z);
     return new sjcl.ecc.pointJac(this.curve, x, y, z);
   },
+  /**
+   * Returns a copy of this point converted to affine coordinates.
+   * @return {sjcl.ecc.point} The converted point.
+   */
   toAffine: function () {
     if (this.isIdentity || this.z.equals(0)) {
       return new sjcl.ecc.point(this.curve);
     }
-    var zi = this.z.inverse(), zi2 = zi.square();
+    var zi = this.z.inverse(),
+      zi2 = zi.square();
     return new sjcl.ecc.point(this.curve, this.x.mul(zi2).fullReduce(), this.y.mul(zi2.mul(zi)).fullReduce());
   },
+  /**
+   * Multiply this point by k and return the answer in Jacobian coordinates.
+   * @param {bigInt} k The coefficient to multiply by.
+   * @param {sjcl.ecc.point} affine This point in affine coordinates.
+   * @return {sjcl.ecc.pointJac} The result of the multiplication, in Jacobian coordinates.
+   */
   mult: function (k, affine) {
     if (typeof k === "number") {
       k = [k];
     } else if (k.limbs !== undefined) {
       k = k.normalize().limbs;
     }
-    var i, j, out = new sjcl.ecc.point(this.curve).toJac(), multiples = affine.multiples();
+    var i,
+      j,
+      out = new sjcl.ecc.point(this.curve).toJac(),
+      multiples = affine.multiples();
     for (i = k.length - 1; i >= 0; i--) {
       for (j = sjcl.bn.prototype.radix - 4; j >= 0; j -= 4) {
-        out = out.doubl().doubl().doubl().doubl().add(multiples[k[i] >> j & 15]);
+        out = out.doubl().doubl().doubl().doubl().add(multiples[k[i] >> j & 0xF]);
       }
     }
     return out;
   },
+  /**
+   * Multiply this point by k, added to affine2*k2, and return the answer in Jacobian coordinates.
+   * @param {bigInt} k The coefficient to multiply this by.
+   * @param {sjcl.ecc.point} affine This point in affine coordinates.
+   * @param {bigInt} k2 The coefficient to multiply affine2 this by.
+   * @param {sjcl.ecc.point} affine The other point in affine coordinates.
+   * @return {sjcl.ecc.pointJac} The result of the multiplication and addition, in Jacobian coordinates.
+   */
   mult2: function (k1, affine, k2, affine2) {
     if (typeof k1 === "number") {
       k1 = [k1];
@@ -132,12 +218,18 @@ sjcl.ecc.pointJac.prototype = {
     } else if (k2.limbs !== undefined) {
       k2 = k2.normalize().limbs;
     }
-    var i, j, out = new sjcl.ecc.point(this.curve).toJac(), m1 = affine.multiples(), m2 = affine2.multiples(), l1, l2;
+    var i,
+      j,
+      out = new sjcl.ecc.point(this.curve).toJac(),
+      m1 = affine.multiples(),
+      m2 = affine2.multiples(),
+      l1,
+      l2;
     for (i = Math.max(k1.length, k2.length) - 1; i >= 0; i--) {
       l1 = k1[i] | 0;
       l2 = k2[i] | 0;
       for (j = sjcl.bn.prototype.radix - 4; j >= 0; j -= 4) {
-        out = out.doubl().doubl().doubl().doubl().add(m1[l1 >> j & 15]).add(m2[l2 >> j & 15]);
+        out = out.doubl().doubl().doubl().doubl().add(m1[l1 >> j & 0xF]).add(m2[l2 >> j & 0xF]);
       }
     }
     return out;
@@ -146,25 +238,40 @@ sjcl.ecc.pointJac.prototype = {
     return this.toAffine().negate().toJac();
   },
   isValid: function () {
-    var z2 = this.z.square(), z4 = z2.square(), z6 = z4.mul(z2);
+    var z2 = this.z.square(),
+      z4 = z2.square(),
+      z6 = z4.mul(z2);
     return this.y.square().equals(this.curve.b.mul(z6).add(this.x.mul(this.curve.a.mul(z4).add(this.x.square()))));
   }
 };
-sjcl.ecc.curve = function (Field, r, a, b, x, y) {
+
+/**
+ * Construct an elliptic curve. Most users will not use this and instead start with one of the NIST curves defined below.
+ *
+ * @constructor
+ * @param {bigInt} p The prime modulus.
+ * @param {bigInt} r The prime order of the curve.
+ * @param {bigInt} a The constant a in the equation of the curve y^2 = x^3 + ax + b (for NIST curves, a is always -3).
+ * @param {bigInt} x The x coordinate of a base point of the curve.
+ * @param {bigInt} y The y coordinate of a base point of the curve.
+ */
+ecc.curve = function (Field, r, a, b, x, y) {
   this.field = Field;
-  this.r = new sjcl.bn(r);
+  this.r = new bn(r);
   this.a = new Field(a);
   this.b = new Field(b);
-  this.G = new sjcl.ecc.point(this, new Field(x), new Field(y));
+  this.G = new ecc.point(this, new Field(x), new Field(y));
 };
-sjcl.ecc.curve.prototype.fromBits = function (bits) {
-  var w = sjcl.bitArray, l = this.field.prototype.exponent + 7 & -8, p = new sjcl.ecc.point(this, this.field.fromBits(w.bitSlice(bits, 0, l)), this.field.fromBits(w.bitSlice(bits, l, 2 * l)));
+ecc.curve.prototype.fromBits = function (bits) {
+  var w = sjcl.bitArray,
+    l = this.field.prototype.exponent + 7 & -8,
+    p = new sjcl.ecc.point(this, this.field.fromBits(w.bitSlice(bits, 0, l)), this.field.fromBits(w.bitSlice(bits, l, 2 * l)));
   if (!p.isValid()) {
     throw new sjcl.exception.corrupt("not on the curve!");
   }
   return p;
 };
-sjcl.ecc.curves = {
+ecc.curves = {
   c192: new sjcl.ecc.curve(sjcl.bn.prime.p192, "0xffffffffffffffffffffffff99def836146bc9b1b4d22831", -3, "0x64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", "0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", "0x07192b95ffc8da78631011ed6b24cdd573f977a11e794811"),
   c224: new sjcl.ecc.curve(sjcl.bn.prime.p224, "0xffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d", -3, "0xb4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4", "0xb70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", "0xbd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34"),
   c256: new sjcl.ecc.curve(sjcl.bn.prime.p256, "0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", -3, "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", "0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", "0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5"),
@@ -174,7 +281,7 @@ sjcl.ecc.curves = {
   k224: new sjcl.ecc.curve(sjcl.bn.prime.p224k, "0x010000000000000000000000000001dce8d2ec6184caf0a971769fb1f7", 0, 5, "0xa1455b334df099df30fc28a169a467e9e47075a90f7e650eb6b7a45c", "0x7e089fed7fba344282cafbd6f7e319f7c0b0bd59e2ca4bdb556d61a5"),
   k256: new sjcl.ecc.curve(sjcl.bn.prime.p256k, "0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", 0, 7, "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", "0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8")
 };
-sjcl.ecc.curveName = function (curve) {
+ecc.curveName = function (curve) {
   var curcurve;
   for (curcurve in sjcl.ecc.curves) {
     if (sjcl.ecc.curves.hasOwnProperty(curcurve)) {
@@ -185,7 +292,7 @@ sjcl.ecc.curveName = function (curve) {
   }
   throw new sjcl.exception.invalid("no such curve");
 };
-sjcl.ecc.deserialize = function (key) {
+ecc.deserialize = function (key) {
   var types = ["elGamal", "ecdsa"];
   if (!key || !key.curve || !sjcl.ecc.curves[key.curve]) {
     throw new sjcl.exception.invalid("invalid serialization");
@@ -208,7 +315,15 @@ sjcl.ecc.deserialize = function (key) {
     return new sjcl.ecc[key.type].publicKey(curve, point);
   }
 };
-sjcl.ecc.basicKey = {
+
+/** our basicKey classes
+*/
+ecc.basicKey = {
+  /** ecc publicKey.
+  * @constructor
+  * @param {curve} curve the elliptic curve
+  * @param {point} point the point on the curve
+  */
   publicKey: function (curve, point) {
     this._curve = curve;
     this._curveBitLength = curve.r.bitLength();
@@ -218,54 +333,69 @@ sjcl.ecc.basicKey = {
       this._point = point;
     }
     this.serialize = function () {
-      var curveName = sjcl.ecc.curveName(curve);
+      var curveName = ecc.curveName(curve);
       return {
         type: this.getType(),
         secretKey: false,
-        point: sjcl.codec.hex.fromBits(this._point.toBits()),
+        point: codec.hex.fromBits(this._point.toBits()),
         curve: curveName
       };
     };
+
+    /** get this keys point data
+    * @return x and y as bitArrays
+    */
     this.get = function () {
       var pointbits = this._point.toBits();
-      var len = sjcl.bitArray.bitLength(pointbits);
-      var x = sjcl.bitArray.bitSlice(pointbits, 0, len / 2);
-      var y = sjcl.bitArray.bitSlice(pointbits, len / 2);
+      var len = bitArray.bitLength(pointbits);
+      var x = bitArray.bitSlice(pointbits, 0, len / 2);
+      var y = bitArray.bitSlice(pointbits, len / 2);
       return {
         x: x,
         y: y
       };
     };
   },
+  /** ecc secretKey
+  * @constructor
+  * @param {curve} curve the elliptic curve
+  * @param exponent
+  */
   secretKey: function (curve, exponent) {
     this._curve = curve;
     this._curveBitLength = curve.r.bitLength();
     this._exponent = exponent;
     this.serialize = function () {
       var exponent = this.get();
-      var curveName = sjcl.ecc.curveName(curve);
+      var curveName = ecc.curveName(curve);
       return {
         type: this.getType(),
         secretKey: true,
-        exponent: sjcl.codec.hex.fromBits(exponent),
+        exponent: codec.hex.fromBits(exponent),
         curve: curveName
       };
     };
+
+    /** get this keys exponent data
+    * @return {bitArray} exponent
+    */
     this.get = function () {
       return this._exponent.toBits();
     };
   }
 };
-sjcl.ecc.basicKey.generateKeys = function (cn) {
+
+/** @private */
+ecc.basicKey.generateKeys = function (cn) {
   return function generateKeys(curve, paranoia, sec) {
     curve = curve || 256;
     if (typeof curve === "number") {
-      curve = sjcl.ecc.curves["c" + curve];
+      curve = ecc.curves['c' + curve];
       if (curve === undefined) {
         throw new sjcl.exception.invalid("no such curve");
       }
     }
-    sec = sec || sjcl.bn.random(curve.r, paranoia);
+    sec = sec || bn.random(curve.r, paranoia);
     var pub = curve.G.mult(sec);
     return {
       pub: new sjcl.ecc[cn].publicKey(curve, pub),
@@ -273,18 +403,40 @@ sjcl.ecc.basicKey.generateKeys = function (cn) {
     };
   };
 };
-sjcl.ecc.elGamal = {
+
+/** elGamal keys */
+ecc.elGamal = {
+  /** generate keys
+  * @function
+  * @param curve
+  * @param {int} paranoia Paranoia for generation (default 6)
+  * @param {secretKey} sec secret Key to use. used to get the publicKey for ones secretKey
+  */
   generateKeys: sjcl.ecc.basicKey.generateKeys("elGamal"),
+  /** elGamal publicKey.
+  * @constructor
+  * @augments sjcl.ecc.basicKey.publicKey
+  */
   publicKey: function (curve, point) {
-    sjcl.ecc.basicKey.publicKey.apply(this, arguments);
+    ecc.basicKey.publicKey.apply(this, arguments);
   },
+  /** elGamal secretKey
+  * @constructor
+  * @augments sjcl.ecc.basicKey.secretKey
+  */
   secretKey: function (curve, exponent) {
-    sjcl.ecc.basicKey.secretKey.apply(this, arguments);
+    ecc.basicKey.secretKey.apply(this, arguments);
   }
 };
-sjcl.ecc.elGamal.publicKey.prototype = {
+ecc.elGamal.publicKey.prototype = {
+  /** Kem function of elGamal Public Key
+  * @param paranoia paranoia to use for randomization.
+  * @return {object} key and tag. unkem(tag) with the corresponding secret key results in the key returned.
+  */
   kem: function (paranoia) {
-    var sec = sjcl.bn.random(this._curve.r, paranoia), tag = this._curve.G.mult(sec).toBits(), key = sjcl.hash.sha256.hash(this._point.mult(sec).toBits());
+    var sec = sjcl.bn.random(this._curve.r, paranoia),
+      tag = this._curve.G.mult(sec).toBits(),
+      key = sjcl.hash.sha256.hash(this._point.mult(sec).toBits());
     return {
       key: key,
       tag: tag
@@ -294,13 +446,26 @@ sjcl.ecc.elGamal.publicKey.prototype = {
     return "elGamal";
   }
 };
-sjcl.ecc.elGamal.secretKey.prototype = {
+ecc.elGamal.secretKey.prototype = {
+  /** UnKem function of elGamal Secret Key
+  * @param {bitArray} tag The Tag to decrypt.
+  * @return {bitArray} decrypted key.
+  */
   unkem: function (tag) {
     return sjcl.hash.sha256.hash(this._curve.fromBits(tag).mult(this._exponent).toBits());
   },
+  /** Diffie-Hellmann function
+  * @param {elGamal.publicKey} pk The Public Key to do Diffie-Hellmann with
+  * @return {bitArray} diffie-hellmann result for this key combination.
+  */
   dh: function (pk) {
     return sjcl.hash.sha256.hash(pk._point.mult(this._exponent).toBits());
   },
+  /** Diffie-Hellmann function, compatible with Java generateSecret
+  * @param {elGamal.publicKey} pk The Public Key to do Diffie-Hellmann with
+  * @return {bitArray} undigested X value, diffie-hellmann result for this key combination,
+  * compatible with Java generateSecret().
+  */
   dhJavaEc: function (pk) {
     return pk._point.mult(this._exponent).x.toBits();
   },
@@ -308,18 +473,46 @@ sjcl.ecc.elGamal.secretKey.prototype = {
     return "elGamal";
   }
 };
-sjcl.ecc.ecdsa = {
+
+/** ecdsa keys */
+ecc.ecdsa = {
+  /** generate keys
+  * @function
+  * @param curve
+  * @param {int} paranoia Paranoia for generation (default 6)
+  * @param {secretKey} sec secret Key to use. used to get the publicKey for ones secretKey
+  */
   generateKeys: sjcl.ecc.basicKey.generateKeys("ecdsa")
 };
-sjcl.ecc.ecdsa.publicKey = function (curve, point) {
-  sjcl.ecc.basicKey.publicKey.apply(this, arguments);
+
+/** ecdsa publicKey.
+* @constructor
+* @augments sjcl.ecc.basicKey.publicKey
+*/
+ecc.ecdsa.publicKey = function (curve, point) {
+  ecc.basicKey.publicKey.apply(this, arguments);
 };
-sjcl.ecc.ecdsa.publicKey.prototype = {
+
+/** specific functions for ecdsa publicKey. */
+ecc.ecdsa.publicKey.prototype = {
+  /** Diffie-Hellmann function
+  * @param {bitArray} hash hash to verify.
+  * @param {bitArray} rs signature bitArray.
+  * @param {boolean}  fakeLegacyVersion use old legacy version
+  */
   verify: function (hash, rs, fakeLegacyVersion) {
     if (sjcl.bitArray.bitLength(hash) > this._curveBitLength) {
-      hash = sjcl.bitArray.clamp(hash, this._curveBitLength);
+      hash = bitArray.clamp(hash, this._curveBitLength);
     }
-    var w = sjcl.bitArray, R = this._curve.r, l = this._curveBitLength, r = sjcl.bn.fromBits(w.bitSlice(rs, 0, l)), ss = sjcl.bn.fromBits(w.bitSlice(rs, l, 2 * l)), s = fakeLegacyVersion ? ss : ss.inverseMod(R), hG = sjcl.bn.fromBits(hash).mul(s).mod(R), hA = r.mul(s).mod(R), r2 = this._curve.G.mult2(hG, hA, this._point).x;
+    var w = sjcl.bitArray,
+      R = this._curve.r,
+      l = this._curveBitLength,
+      r = sjcl.bn.fromBits(w.bitSlice(rs, 0, l)),
+      ss = sjcl.bn.fromBits(w.bitSlice(rs, l, 2 * l)),
+      s = fakeLegacyVersion ? ss : ss.inverseMod(R),
+      hG = sjcl.bn.fromBits(hash).mul(s).mod(R),
+      hA = r.mul(s).mod(R),
+      r2 = this._curve.G.mult2(hG, hA, this._point).x;
     if (r.equals(0) || ss.equals(0) || r.greaterEquals(R) || ss.greaterEquals(R) || !r2.equals(r)) {
       if (fakeLegacyVersion === undefined) {
         return this.verify(hash, rs, true);
@@ -333,20 +526,35 @@ sjcl.ecc.ecdsa.publicKey.prototype = {
     return "ecdsa";
   }
 };
-sjcl.ecc.ecdsa.secretKey = function (curve, exponent) {
-  sjcl.ecc.basicKey.secretKey.apply(this, arguments);
+
+/** ecdsa secretKey
+* @constructor
+* @augments sjcl.ecc.basicKey.publicKey
+*/
+ecc.ecdsa.secretKey = function (curve, exponent) {
+  ecc.basicKey.secretKey.apply(this, arguments);
 };
-sjcl.ecc.ecdsa.secretKey.prototype = {
+
+/** specific functions for ecdsa secretKey. */
+ecc.ecdsa.secretKey.prototype = {
+  /** Diffie-Hellmann function
+  * @param {bitArray} hash hash to sign.
+  * @param {int} paranoia paranoia for random number generation
+  * @param {boolean} fakeLegacyVersion use old legacy version
+  */
   sign: function (hash, paranoia, fakeLegacyVersion, fixedKForTesting) {
     if (sjcl.bitArray.bitLength(hash) > this._curveBitLength) {
-      hash = sjcl.bitArray.clamp(hash, this._curveBitLength);
+      hash = bitArray.clamp(hash, this._curveBitLength);
     }
-    var R = this._curve.r, l = R.bitLength(), k = fixedKForTesting || sjcl.bn.random(R.sub(1), paranoia).add(1), r = this._curve.G.mult(k).x.mod(R), ss = sjcl.bn.fromBits(hash).add(r.mul(this._exponent)), s = fakeLegacyVersion ? ss.inverseMod(R).mul(k).mod(R) : ss.mul(k.inverseMod(R)).mod(R);
+    var R = this._curve.r,
+      l = R.bitLength(),
+      k = fixedKForTesting || sjcl.bn.random(R.sub(1), paranoia).add(1),
+      r = this._curve.G.mult(k).x.mod(R),
+      ss = sjcl.bn.fromBits(hash).add(r.mul(this._exponent)),
+      s = fakeLegacyVersion ? ss.inverseMod(R).mul(k).mod(R) : ss.mul(k.inverseMod(R)).mod(R);
     return sjcl.bitArray.concat(r.toBits(l), s.toBits(l));
   },
   getType: function () {
     return "ecdsa";
   }
 };
-
-export { sjcl as default };

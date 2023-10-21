@@ -2,25 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PowerShell Launch Current File",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "${file}",
-            "cwd": "${cwd}"
-        },
-        {
-            "name": "PowerShell Attach to Host Process",
-            "type": "PowerShell",
-            "request": "attach",
-            "runspaceId": 1
-        },
-        {
-            "name": "PowerShell Attach Interactive Session Runspace",
-            "type": "PowerShell",
-            "request": "attach",
-            "processId": "current"
-        },
-        {
             "name": "Attach",
             "port": 9229,
             "request": "attach",

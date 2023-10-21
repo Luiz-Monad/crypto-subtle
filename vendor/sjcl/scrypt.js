@@ -1,8 +1,25 @@
-import 'module';
+"use strict";
 
-var sjcl = global.sjcl;
-sjcl.misc.scrypt = function (password, salt, N, r, p, length, Prff) {
-  var SIZE_MAX = Math.pow(2, 32) - 1, self = sjcl.misc.scrypt;
+var sjcl = require("./sjcl");
+var misc = module.exports = sjcl.misc = sjcl.misc || {};
+/** scrypt Password-Based Key-Derivation Function.
+ *
+ * @param {bitArray|String} password  The password.
+ * @param {bitArray|String} salt      The salt.  Should have lots of entropy.
+ *
+ * @param {Number} [N=16384] CPU/Memory cost parameter.
+ * @param {Number} [r=8]     Block size parameter.
+ * @param {Number} [p=1]     Parallelization parameter.
+ *
+ * @param {Number} [length] The length of the derived key.  Defaults to the
+ *                          output size of the hash function.
+ * @param {Object} [Prff=sjcl.misc.hmac] The pseudorandom function family.
+ *
+ * @return {bitArray} The derived key.
+ */
+misc.scrypt = function (password, salt, N, r, p, length, Prff) {
+  var SIZE_MAX = Math.pow(2, 32) - 1,
+    self = sjcl.misc.scrypt;
   N = N || 16384;
   r = r || 8;
   p = p || 1;
@@ -18,7 +35,8 @@ sjcl.misc.scrypt = function (password, salt, N, r, p, length, Prff) {
   if (r > SIZE_MAX / 128 / p) {
     throw sjcl.exception.invalid("r too big.");
   }
-  var blocks = sjcl.misc.pbkdf2(password, salt, 1, p * 128 * r * 8, Prff), len = blocks.length / p;
+  var blocks = sjcl.misc.pbkdf2(password, salt, 1, p * 128 * r * 8, Prff),
+    len = blocks.length / p;
   self.reverse(blocks);
   for (var i = 0; i < p; i++) {
     var block = blocks.slice(i * len, (i + 1) * len);
@@ -27,7 +45,7 @@ sjcl.misc.scrypt = function (password, salt, N, r, p, length, Prff) {
   self.reverse(blocks);
   return sjcl.misc.pbkdf2(password, blocks, 1, length, Prff);
 };
-sjcl.misc.scrypt.salsa20Core = function (word, rounds) {
+misc.scrypt.salsa20Core = function (word, rounds) {
   var R = function (a, b) {
     return a << b | a >>> 32 - b;
   };
@@ -68,8 +86,11 @@ sjcl.misc.scrypt.salsa20Core = function (word, rounds) {
   }
   for (i = 0; i < 16; i++) word[i] = x[i] + word[i];
 };
-sjcl.misc.scrypt.blockMix = function (blocks) {
-  var X = blocks.slice(-16), out = [], len = blocks.length / 16, self = sjcl.misc.scrypt;
+misc.scrypt.blockMix = function (blocks) {
+  var X = blocks.slice(-16),
+    out = [],
+    len = blocks.length / 16,
+    self = sjcl.misc.scrypt;
   for (var i = 0; i < len; i++) {
     self.blockxor(blocks, 16 * i, X, 0, 16);
     self.salsa20Core(X, 8);
@@ -81,8 +102,10 @@ sjcl.misc.scrypt.blockMix = function (blocks) {
   }
   return out;
 };
-sjcl.misc.scrypt.ROMix = function (block, N) {
-  var X = block.slice(0), V = [], self = sjcl.misc.scrypt;
+misc.scrypt.ROMix = function (block, N) {
+  var X = block.slice(0),
+    V = [],
+    self = sjcl.misc.scrypt;
   for (var i = 0; i < N; i++) {
     V.push(X.slice(0));
     X = self.blockMix(X);
@@ -94,24 +117,23 @@ sjcl.misc.scrypt.ROMix = function (block, N) {
   }
   return X;
 };
-sjcl.misc.scrypt.reverse = function (words) {
+misc.scrypt.reverse = function (words) {
+  // Converts Big <-> Little Endian words
   for (var i in words) {
-    var out = words[i] & 255;
-    out = out << 8 | words[i] >>> 8 & 255;
-    out = out << 8 | words[i] >>> 16 & 255;
-    out = out << 8 | words[i] >>> 24 & 255;
+    var out = words[i] & 0xFF;
+    out = out << 8 | words[i] >>> 8 & 0xFF;
+    out = out << 8 | words[i] >>> 16 & 0xFF;
+    out = out << 8 | words[i] >>> 24 & 0xFF;
     words[i] = out;
   }
 };
-sjcl.misc.scrypt.blockcopy = function (S, Si, D, Di, len) {
+misc.scrypt.blockcopy = function (S, Si, D, Di, len) {
   var i;
   len = len || S.length - Si;
   for (i = 0; i < len; i++) D[Di + i] = S[Si + i] | 0;
 };
-sjcl.misc.scrypt.blockxor = function (S, Si, D, Di, len) {
+misc.scrypt.blockxor = function (S, Si, D, Di, len) {
   var i;
   len = len || S.length - Si;
   for (i = 0; i < len; i++) D[Di + i] = D[Di + i] ^ S[Si + i] | 0;
 };
-
-export { sjcl as default };

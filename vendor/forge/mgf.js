@@ -1,8 +1,13 @@
-import 'module';
-import './mgf1.js';
+"use strict";
 
-var forge = global.forge;
-forge.mgf = forge.mgf || ({});
+/**
+ * Node.js module for Forge mask generation functions.
+ *
+ * @author Stefan Siegl
+ *
+ * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
+ */
+var forge = require('./forge');
+require('./mgf1');
+module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
-
-export { forge as default };
