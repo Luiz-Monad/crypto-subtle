@@ -36,10 +36,10 @@ function bundler ($base, $target) {
 
 # =====================================================================================
 
-bundler './node_modules/node-forge/lib/' 'vendor/forge'
-bundler './node_modules/sjcl/core/' 'vendor/sjcl'
-bundler './node_modules/rsa-compat/lib/' 'vendor/rsa'
-bundler './node_modules/keypairs/' 'vendor/keypairs'
-bundler './node_modules/eckles/lib/' 'vendor/eckles'
-bundler './node_modules/rasha/lib/' 'vendor/rasha'
+bundler './node_modules/node-forge/lib/' 'vendor-cjs/forge'
+bundler './node_modules/sjcl/core/' 'vendor-cjs/sjcl'
+bundler './node_modules/rsa-compat/lib/' 'vendor-cjs/rsa'
+bundler './node_modules/keypairs/' 'vendor-cjs/keypairs'
+bundler './node_modules/eckles/lib/' 'vendor-cjs/eckles'
+bundler './node_modules/rasha/lib/' 'vendor-cjs/rasha'
 

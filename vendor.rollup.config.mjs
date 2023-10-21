@@ -9,11 +9,12 @@ import Glob from 'glob';
 const glob = (patt) => (cwd) => Glob.sync(patt, { cwd });
 
 const vendored = {
-  sjcl: ['./node_modules/sjcl/core', glob('*')],
-  forge: ['./node_modules/node-forge/lib', 'index.js'],
-  rsa: ['./node_modules/rsa-compat/lib', 'rsa.js'],
-  eckles: ['./node_modules/eckles/lib', 'eckles.js'],
-  rasha: ['./node_modules/rasha/lib', 'rasha.js'],
+  sjcl: ['./vendor-cjs/sjcl', glob('*')],
+  forge: ['./vendor-cjs/forge', 'index.js'],
+  rsa: ['./vendor-cjs/rsa', 'rsa.js'],
+  keypairs: ['./vendor-cjs/keypairs', 'keypairs.js'],
+  eckles: ['./vendor-cjs/eckles', 'eckles.js'],
+  rasha: ['./vendor-cjs/rasha', 'rasha.js'],
 }
 
 const entrypoint = (root, input) =>
@@ -25,8 +26,8 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
   plugins: [
     ...plugins,
     babel({
-      configFile: './vendor.babelrc',
-      babelHelpers: 'bundled',
+      configFile: './.babelrc',
+      babelHelpers: 'external',
       skipPreflightCheck: true,
     }),
     resolve({
@@ -45,12 +46,14 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     }),
   ],
   external: [
-    'crypto',
-    'module',
-    'buffer',
     'buffer-v6-polyfill',
+    'crypto',
+    'eckles',
+    'https',
     'keypairs',
     'node-forge',
+    'os',
+    'rasha',
     'ursa',
     'ursa-optional',
   ],
