@@ -10,12 +10,13 @@ const glob = (patt) => (cwd) => Glob.sync(patt, { cwd });
 
 const vendored = {
   forge: ['./node_modules/node-forge/lib', 'index.js'],
-  // sjcl: ['./node_modules/sjcl/core', glob('*')],
-  // rsa: ['./node_modules/rsa-compat/lib', 'rsa.js'],
+  sjcl: ['./node_modules/sjcl/core', glob('*')],
+  rsa: ['./node_modules/rsa-compat/lib', 'rsa.js'],
 }
 
 const entrypoint = (root, input) =>
-  (typeof input === 'string' ? [input] : input).map(i => path.join(root, i));
+  (typeof input === 'string' ? [input] : Array.from(input(root)))
+    .map(i => path.join(root, i));
 
 const config = Object.entries(vendored).map(([libName, [root, input, plugins = []]]) => ({
   input: entrypoint(root, input),
@@ -34,7 +35,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     }),
     commonjs({
       preserveModules: true,
-    }),    
+    }),
     multiEntry({
       entryFileName: 'index.js',
       exports: true,
