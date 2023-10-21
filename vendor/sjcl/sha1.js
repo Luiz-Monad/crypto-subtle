@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var hash = sjcl.hash = sjcl.hash || {};
+var sjcl = require("./sjcl");
+var hash = module.exports = sjcl.hash = sjcl.hash || {};
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
 /** @fileOverview Javascript SHA-1 implementation.
@@ -45,7 +45,7 @@ hash.sha1.prototype = {
    * Reset the hash state.
    * @return this
    */
-  reset: function reset() {
+  reset: function () {
     this._h = this._init.slice(0);
     this._buffer = [];
     this._length = 0;
@@ -56,7 +56,7 @@ hash.sha1.prototype = {
    * @param {bitArray|String} data the data to hash.
    * @return this
    */
-  update: function update(data) {
+  update: function (data) {
     if (typeof data === "string") {
       data = codec.utf8String.toBits(data);
     }
@@ -86,7 +86,7 @@ hash.sha1.prototype = {
    * Complete hashing and output the hash value.
    * @return {bitArray} The hash value, an array of 5 big-endian words. TODO
    */
-  finalize: function finalize() {
+  finalize: function () {
     var i,
       b = this._buffer,
       h = this._h;
@@ -121,7 +121,7 @@ hash.sha1.prototype = {
    * The SHA-1 logical functions f(0), f(1), ..., f(79).
    * @private
    */
-  _f: function _f(t, b, c, d) {
+  _f: function (t, b, c, d) {
     if (t <= 19) {
       return b & c | ~b & d;
     } else if (t <= 39) {
@@ -136,7 +136,7 @@ hash.sha1.prototype = {
    * Circular left-shift operator.
    * @private
    */
-  _S: function _S(n, x) {
+  _S: function (n, x) {
     return x << n | x >>> 32 - n;
   },
   /**
@@ -144,7 +144,7 @@ hash.sha1.prototype = {
    * @param {Uint32Array|bitArray} words one block of words.
    * @private
    */
-  _block: function _block(words) {
+  _block: function (words) {
     var t,
       tmp,
       a,

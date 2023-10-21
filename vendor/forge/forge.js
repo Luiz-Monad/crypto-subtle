@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Node.js module for Forge.
  *
@@ -5,11 +7,9 @@
  *
  * Copyright 2011-2016 Digital Bazaar, Inc.
  */
-var forge = {
+module.exports = {
   // default options
   options: {
     usePureJavaScript: false
   }
 };
-
-export { forge };

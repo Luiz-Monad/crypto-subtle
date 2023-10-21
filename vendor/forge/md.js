@@ -1,4 +1,4 @@
-import { forge as forge$1 } from './forge.js';
+"use strict";
 
 /**
  * Node.js module for Forge message digests.
@@ -7,6 +7,6 @@ import { forge as forge$1 } from './forge.js';
  *
  * Copyright 2011-2017 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-forge.md = forge.md || {};
+var forge = require('./forge');
+module.exports = forge.md = forge.md || {};
 forge.md.algorithms = forge.md.algorithms || {};

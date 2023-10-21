@@ -1,14 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './asn1.js';
-import './oids.js';
-import './pbe.js';
-import './pem.js';
-import './pbkdf2.js';
-import './pkcs12.js';
-import './pss.js';
-import './rsa.js';
-import './util.js';
-import './x509.js';
+"use strict";
 
 /**
  * Javascript implementation of a basic Public Key Infrastructure, including
@@ -18,23 +8,23 @@ import './x509.js';
  *
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
-
-
-
-
-
-
-
-
-
+var forge = require('./forge');
+require('./asn1');
+require('./oids');
+require('./pbe');
+require('./pem');
+require('./pbkdf2');
+require('./pkcs12');
+require('./pss');
+require('./rsa');
+require('./util');
+require('./x509');
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
 
 /* Public Key Infrastructure (PKI) implementation. */
-var pki = forge.pki = forge.pki || {};
+var pki = module.exports = forge.pki = forge.pki || {};
 
 /**
  * NOTE: THIS METHOD IS DEPRECATED. Use pem.decode() instead.

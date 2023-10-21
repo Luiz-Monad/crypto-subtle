@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './aes.js';
-import './tls.js';
+"use strict";
 
 /**
  * A Javascript implementation of AES Cipher Suites for TLS.
@@ -10,10 +8,10 @@ import './tls.js';
  * Copyright (c) 2009-2015 Digital Bazaar, Inc.
  *
  */
-var forge = forge$1;
-
-
-var tls = forge.tls;
+var forge = require('./forge');
+require('./aes');
+require('./tls');
+var tls = module.exports = forge.tls;
 
 /**
  * Supported cipher suites.
@@ -21,7 +19,7 @@ var tls = forge.tls;
 tls.CipherSuites['TLS_RSA_WITH_AES_128_CBC_SHA'] = {
   id: [0x00, 0x2f],
   name: 'TLS_RSA_WITH_AES_128_CBC_SHA',
-  initSecurityParameters: function initSecurityParameters(sp) {
+  initSecurityParameters: function (sp) {
     sp.bulk_cipher_algorithm = tls.BulkCipherAlgorithm.aes;
     sp.cipher_type = tls.CipherType.block;
     sp.enc_key_length = 16;
@@ -37,7 +35,7 @@ tls.CipherSuites['TLS_RSA_WITH_AES_128_CBC_SHA'] = {
 tls.CipherSuites['TLS_RSA_WITH_AES_256_CBC_SHA'] = {
   id: [0x00, 0x35],
   name: 'TLS_RSA_WITH_AES_256_CBC_SHA',
-  initSecurityParameters: function initSecurityParameters(sp) {
+  initSecurityParameters: function (sp) {
     sp.bulk_cipher_algorithm = tls.BulkCipherAlgorithm.aes;
     sp.cipher_type = tls.CipherType.block;
     sp.enc_key_length = 32;

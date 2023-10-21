@@ -1,14 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './aes.js';
-import './asn1.js';
-import './des.js';
-import './md.js';
-import './mgf.js';
-import './oids.js';
-import './pem.js';
-import './pss.js';
-import './rsa.js';
-import './util.js';
+"use strict";
 
 /**
  * Javascript implementation of X.509 and related components (such as
@@ -119,24 +109,23 @@ import './util.js';
  *   signature          BIT STRING
  * }
  */
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var forge = forge$1;
-
-
-
-
-
-
-
-
-
-
+var forge = require('./forge');
+require('./aes');
+require('./asn1');
+require('./des');
+require('./md');
+require('./mgf');
+require('./oids');
+require('./pem');
+require('./pss');
+require('./rsa');
+require('./util');
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
 
 /* Public Key Infrastructure (PKI) implementation. */
-var pki = forge.pki = forge.pki || {};
+var pki = module.exports = forge.pki = forge.pki || {};
 var oids = pki.oids;
 
 // short name OID mappings
@@ -647,7 +636,7 @@ function _getAttribute(obj, options) {
  * @param fillDefaults Whether to use return default values where omitted
  * @return signature parameter object
  */
-var _readSignatureParameters = function _readSignatureParameters(oid, obj, fillDefaults) {
+var _readSignatureParameters = function (oid, obj, fillDefaults) {
   var params = {};
   if (oid !== oids['RSASSA-PSS']) {
     return params;
@@ -697,7 +686,7 @@ var _readSignatureParameters = function _readSignatureParameters(oid, obj, fillD
  *   type: a human readable type for error messages
  * @return a created md instance. throws if unknown oid.
  */
-var _createSignatureDigest = function _createSignatureDigest(options) {
+var _createSignatureDigest = function (options) {
   switch (oids[options.signatureOid]) {
     case 'sha1WithRSAEncryption':
     // deprecated alias
@@ -729,7 +718,7 @@ var _createSignatureDigest = function _createSignatureDigest(options) {
  *   signature the signature
  * @return a created md instance. throws if unknown oid.
  */
-var _verifySignature = function _verifySignature(options) {
+var _verifySignature = function (options) {
   var cert = options.certificate;
   var scheme;
   switch (cert.signatureOid) {
@@ -1582,6 +1571,7 @@ pki.certificateExtensionFromAsn1 = function (ext) {
           case 8:
             altName.oid = asn1.derToOid(gn.value);
             break;
+          default:
           // unsupported
         }
       }
@@ -1832,6 +1822,35 @@ function _dnToAsn1(obj) {
     // AttributeValue
     asn1.create(asn1.Class.UNIVERSAL, valueTagClass, false, value)])]);
     rval.value.push(set);
+  }
+  return rval;
+}
+
+/**
+ * Gets all printable attributes (typically of an issuer or subject) in a
+ * simplified JSON format for display.
+ *
+ * @param attrs the attributes.
+ *
+ * @return the JSON for display.
+ */
+function _getAttributesAsJson(attrs) {
+  var rval = {};
+  for (var i = 0; i < attrs.length; ++i) {
+    var attr = attrs[i];
+    if (attr.shortName && (attr.valueTagClass === asn1.Type.UTF8 || attr.valueTagClass === asn1.Type.PRINTABLESTRING || attr.valueTagClass === asn1.Type.IA5STRING)) {
+      var value = attr.value;
+      if (attr.valueTagClass === asn1.Type.UTF8) {
+        value = forge.util.encodeUtf8(attr.value);
+      }
+      if (!(attr.shortName in rval)) {
+        rval[attr.shortName] = value;
+      } else if (forge.util.isArray(rval[attr.shortName])) {
+        rval[attr.shortName].push(value);
+      } else {
+        rval[attr.shortName] = [rval[attr.shortName], value];
+      }
+    }
   }
   return rval;
 }
@@ -2952,7 +2971,7 @@ pki.verifyCertificateChain = function (caStore, chain, options) {
       // check for custom error info
       if (ret || ret === 0) {
         // set custom message and error
-        if (_typeof(ret) === 'object' && !forge.util.isArray(ret)) {
+        if (typeof ret === 'object' && !forge.util.isArray(ret)) {
           if (ret.message) {
             error.message = ret.message;
           }

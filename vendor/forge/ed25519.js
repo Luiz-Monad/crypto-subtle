@@ -1,10 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './jsbn.js';
-import './random.js';
-import './sha512.js';
-import './util.js';
-import './asn1-validator.js';
-import { __exports as asn1Validator$1 } from './_virtual/asn1-validator.js';
+"use strict";
 
 /**
  * JavaScript implementation of Ed25519.
@@ -16,12 +10,12 @@ import { __exports as asn1Validator$1 } from './_virtual/asn1-validator.js';
  *
  * https://github.com/dchest/tweetnacl-js
  */
-var forge = forge$1;
-
-
-
-
-var asn1Validator = asn1Validator$1;
+var forge = require('./forge');
+require('./jsbn');
+require('./random');
+require('./sha512');
+require('./util');
+var asn1Validator = require('./asn1-validator');
 var publicKeyValidator = asn1Validator.publicKeyValidator;
 var privateKeyValidator = asn1Validator.privateKeyValidator;
 if (typeof BigInteger === 'undefined') {
@@ -35,7 +29,7 @@ var NativeBuffer = typeof Buffer === 'undefined' ? Uint8Array : Buffer;
  * https://tools.ietf.org/html/rfc8032
  */
 forge.pki = forge.pki || {};
-forge.pki.ed25519 = forge.ed25519 = forge.ed25519 || {};
+module.exports = forge.pki.ed25519 = forge.ed25519 = forge.ed25519 || {};
 var ed25519 = forge.ed25519;
 ed25519.constants = {};
 ed25519.constants.PUBLIC_KEY_BYTE_LENGTH = 32;

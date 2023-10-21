@@ -1,14 +1,13 @@
-import { __exports as asn1Validator } from './_virtual/asn1-validator.js';
-import { forge as forge$1 } from './forge.js';
-import './asn1.js';
+"use strict";
 
 /**
  * Copyright (c) 2019 Digital Bazaar, Inc.
  */
-var forge = forge$1;
 
+var forge = require('./forge');
+require('./asn1');
 var asn1 = forge.asn1;
-asn1Validator.privateKeyValidator = {
+exports.privateKeyValidator = {
   // PrivateKeyInfo
   name: 'PrivateKeyInfo',
   tagClass: asn1.Class.UNIVERSAL,
@@ -43,7 +42,7 @@ asn1Validator.privateKeyValidator = {
     capture: 'privateKey'
   }]
 };
-asn1Validator.publicKeyValidator = {
+exports.publicKeyValidator = {
   name: 'SubjectPublicKeyInfo',
   tagClass: asn1.Class.UNIVERSAL,
   type: asn1.Type.SEQUENCE,
@@ -89,5 +88,3 @@ asn1Validator.publicKeyValidator = {
     }]
   } */]
 };
-
-export { asn1Validator as default };

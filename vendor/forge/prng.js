@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './util.js';
-import require$$4 from 'crypto';
+"use strict";
 
 /**
  * A javascript implementation of a cryptographically-secure
@@ -13,15 +11,15 @@ import require$$4 from 'crypto';
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
+var forge = require('./forge');
+require('./util');
 var _crypto = null;
 if (forge.util.isNodejs && !forge.options.usePureJavaScript && !process.versions['node-webkit']) {
-  _crypto = require$$4;
+  _crypto = require('crypto');
 }
 
 /* PRNG API */
-var prng = forge.prng = forge.prng || {};
+var prng = module.exports = forge.prng = forge.prng || {};
 
 /**
  * Creates a new PRNG context.
@@ -265,7 +263,7 @@ prng.create = function (plugin) {
     var globalScope = forge.util.globalScope;
     var _crypto = globalScope.crypto || globalScope.msCrypto;
     if (_crypto && _crypto.getRandomValues) {
-      getRandomValues = function getRandomValues(arr) {
+      getRandomValues = function (arr) {
         return _crypto.getRandomValues(arr);
       };
     }
@@ -400,7 +398,7 @@ prng.create = function (plugin) {
       };
     } else {
       // main thread sends random bytes upon request
-      var listener = function listener(e) {
+      var listener = function (e) {
         var data = e.data;
         if (data.forge && data.forge.prng) {
           ctx.seedFile(data.forge.prng.needed, function (err, bytes) {

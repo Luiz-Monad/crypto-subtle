@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var mode = sjcl.mode = sjcl.mode || {};
+var sjcl = require("./sjcl");
+var mode = module.exports = sjcl.mode = sjcl.mode || {};
 /** @fileOverview GCM mode implementation.
  *
  * @author Juho Vähä-Herttua
@@ -26,7 +26,7 @@ mode.gcm = {
    * @param {Number} [tlen=128] The desired tag length, in bits.
    * @return {bitArray} The encrypted data, an array of bytes.
    */
-  encrypt: function encrypt(prf, plaintext, iv, adata, tlen) {
+  encrypt: function (prf, plaintext, iv, adata, tlen) {
     var out,
       data = plaintext.slice(0),
       w = sjcl.bitArray;
@@ -46,7 +46,7 @@ mode.gcm = {
    * @param {Number} [tlen=128] The desired tag length, in bits.
    * @return {bitArray} The decrypted data.
    */
-  decrypt: function decrypt(prf, ciphertext, iv, adata, tlen) {
+  decrypt: function (prf, ciphertext, iv, adata, tlen) {
     var out,
       data = ciphertext.slice(0),
       tag,
@@ -74,7 +74,7 @@ mode.gcm = {
   /* Compute the galois multiplication of X and Y
    * @private
    */
-  _galoisMultiply: function _galoisMultiply(x, y) {
+  _galoisMultiply: function (x, y) {
     var i,
       j,
       xi,
@@ -110,7 +110,7 @@ mode.gcm = {
     }
     return Zi;
   },
-  _ghash: function _ghash(H, Y0, data) {
+  _ghash: function (H, Y0, data) {
     var Yi,
       i,
       l = data.length;
@@ -133,7 +133,7 @@ mode.gcm = {
    * @param {bitArray} adata The associated data to be tagged.
    * @param {Number} tlen The length of the tag, in bits.
    */
-  _ctrMode: function _ctrMode(encrypt, prf, data, adata, iv, tlen) {
+  _ctrMode: function (encrypt, prf, data, adata, iv, tlen) {
     var H,
       J0,
       S0,

@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var codec = sjcl.codec = sjcl.codec || {};
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
 /**
  * @fileOverview    Z85 codec implementation.
  * @summary         Z85 encoding is the "string-safe" ZeroMQ variant of Base85 
@@ -37,7 +37,7 @@ codec.z85 = {
    * @param   {bitArray} arr - The input bitArray.
    * @return  {string} The Z85-encoded string.
    */
-  fromBits: function fromBits(arr) {
+  fromBits: function (arr) {
     // Sanity checks
     if (!arr) {
       return null;
@@ -81,7 +81,7 @@ codec.z85 = {
    * @param   {string} str - A valid Z85-encoded string.
    * @return  {bitArray} The decoded data represented as a bitArray.
    */
-  toBits: function toBits(str) {
+  toBits: function (str) {
     // Sanity check
     if (!str) {
       return [];

@@ -1,7 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './util.js';
-import './jsbn.js';
-import './random.js';
+"use strict";
 
 /**
  * Prime number generation API.
@@ -10,17 +7,25 @@ import './random.js';
  *
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
+var forge = require('./forge');
+require('./util');
+require('./jsbn');
+require('./random');
+;
+// forge.prime already defined
+if (forge.prime) {
+  module.exports = forge.prime;
+}
 
 /* PRIME API */
-var prime = forge.prime = forge.prime || {};
+var prime = module.exports = forge.prime = forge.prime || {};
 var BigInteger = forge.jsbn.BigInteger;
 
 // primes are 30k+i for i = 1, 7, 11, 13, 17, 19, 23, 29
 var GCD_30_DELTA = [6, 4, 2, 4, 2, 4, 6, 2];
 var THIRTY = new BigInteger(null);
 THIRTY.fromInt(30);
-var op_or = function op_or(x, y) {
+var op_or = function (x, y) {
   return x | y;
 };
 
@@ -73,7 +78,7 @@ prime.generateProbablePrime = function (bits, options, callback) {
   var prng = options.prng || forge.random;
   var rng = {
     // x is an array to fill with bytes
-    nextBytes: function nextBytes(x) {
+    nextBytes: function (x) {
       var b = prng.getBytesSync(x.length);
       for (var i = 0; i < x.length; ++i) {
         x[i] = b.charCodeAt(i);
@@ -181,6 +186,7 @@ function primeincFindPrimeWithWorkers(bits, rng, options, callback) {
       // FIXME: fix path or use blob URLs
       workers[i] = new Worker(workerScript);
     }
+    var running = numWorkers;
 
     // listen for requests from workers and assign ranges to find prime
     for (var i = 0; i < numWorkers; ++i) {
@@ -203,6 +209,7 @@ function primeincFindPrimeWithWorkers(bits, rng, options, callback) {
       if (found) {
         return;
       }
+      --running;
       var data = e.data;
       if (data.found) {
         // terminate all workers

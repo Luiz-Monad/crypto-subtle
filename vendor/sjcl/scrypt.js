@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var misc = sjcl.misc = sjcl.misc || {};
+var sjcl = require("./sjcl");
+var misc = module.exports = sjcl.misc = sjcl.misc || {};
 /** scrypt Password-Based Key-Derivation Function.
  *
  * @param {bitArray|String} password  The password.
@@ -46,7 +46,7 @@ misc.scrypt = function (password, salt, N, r, p, length, Prff) {
   return sjcl.misc.pbkdf2(password, blocks, 1, length, Prff);
 };
 misc.scrypt.salsa20Core = function (word, rounds) {
-  var R = function R(a, b) {
+  var R = function (a, b) {
     return a << b | a >>> 32 - b;
   };
   var x = word.slice(0);

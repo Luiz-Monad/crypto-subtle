@@ -1,7 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './util.js';
-import './random.js';
-import './jsbn.js';
+"use strict";
 
 /**
  * Javascript implementation of RSA-KEM.
@@ -12,11 +9,11 @@ import './jsbn.js';
  * Copyright (c) 2014 Lautaro Cozzani <lautaro.cozzani@scytl.com>
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
-
-
-forge.kem = forge.kem || {};
+var forge = require('./forge');
+require('./util');
+require('./random');
+require('./jsbn');
+module.exports = forge.kem = forge.kem || {};
 var BigInteger = forge.jsbn.BigInteger;
 
 /**

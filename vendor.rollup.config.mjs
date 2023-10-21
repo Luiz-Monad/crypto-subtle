@@ -13,8 +13,8 @@ const vendored = {
   forge: ['./vendor-cjs/forge', 'index.js'],
   rsa: ['./vendor-cjs/rsa', 'rsa.js'],
   keypairs: ['./vendor-cjs/keypairs', 'keypairs.js'],
-  eckles: ['./vendor-cjs/eckles', 'eckles.js'],
   rasha: ['./vendor-cjs/rasha', 'rasha.js'],
+  eckles: ['./vendor-cjs/eckles', 'eckles.js'],
 }
 
 const entrypoint = (root, input) =>
@@ -46,16 +46,18 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     }),
   ],
   external: [
-    'buffer-v6-polyfill',
+    /* browser */
     'crypto',
-    'eckles',
-    'https',
-    'keypairs',
-    'node-forge',
+
+    /* node */
+    'buffer-v6-polyfill',
     'os',
+
+    /* vendor */
+    'node-forge',
+    'keypairs',
     'rasha',
-    'ursa',
-    'ursa-optional',
+    'eckles',
   ],
   output: {
     dir: `vendor/${libName}`,

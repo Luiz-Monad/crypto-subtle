@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './md.js';
-import './util.js';
+"use strict";
 
 /**
  * Message Digest Algorithm 5 with 128-bit digest (MD5) implementation.
@@ -9,10 +7,10 @@ import './util.js';
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
-
-var md5 = forge.md5 = forge.md5 || {};
+var forge = require('./forge');
+require('./md');
+require('./util');
+var md5 = module.exports = forge.md5 = forge.md5 || {};
 forge.md.md5 = forge.md.algorithms.md5 = md5;
 
 /**

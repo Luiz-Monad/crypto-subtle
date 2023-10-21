@@ -1,8 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var sjcl = require$$0;
-var bn = sjcl.bn = sjcl.bn || {};
+var sjcl = require("./sjcl");
+var bn = module.exports = sjcl.bn = sjcl.bn || {};
 var random = sjcl.random;
 // Thanks to Colin McRae and Jonathan Burns of ionic security
 // for reporting and fixing two bugs in this file!
@@ -18,16 +17,16 @@ bn.prototype = {
   radix: 24,
   maxMul: 8,
   _class: sjcl.bn,
-  copy: function copy() {
+  copy: function () {
     return new this._class(this);
   },
   /**
    * Initializes this with it, either as a bn, a number, or a hex string.
    */
-  initWith: function initWith(it) {
+  initWith: function (it) {
     var i = 0,
       k;
-    switch (_typeof(it)) {
+    switch (typeof it) {
       case "object":
         this.limbs = it.limbs.slice(0);
         break;
@@ -53,7 +52,7 @@ bn.prototype = {
    * Returns true if "this" and "that" are equal.  Calls fullReduce().
    * Equality test is in constant time.
    */
-  equals: function equals(that) {
+  equals: function (that) {
     if (typeof that === "number") {
       that = new this._class(that);
     }
@@ -69,14 +68,14 @@ bn.prototype = {
   /**
    * Get the i'th limb of this, zero if i is too large.
    */
-  getLimb: function getLimb(i) {
+  getLimb: function (i) {
     return i >= this.limbs.length ? 0 : this.limbs[i];
   },
   /**
    * Constant time comparison function.
    * Returns 1 if this >= that, or zero otherwise.
    */
-  greaterEquals: function greaterEquals(that) {
+  greaterEquals: function (that) {
     if (typeof that === "number") {
       that = new this._class(that);
     }
@@ -97,7 +96,7 @@ bn.prototype = {
   /**
    * Convert to a hex string.
    */
-  toString: function toString() {
+  toString: function () {
     this.fullReduce();
     var out = "",
       i,
@@ -113,8 +112,8 @@ bn.prototype = {
     return "0x" + out;
   },
   /** this += that.  Does not normalize. */
-  addM: function addM(that) {
-    if (_typeof(that) !== "object") {
+  addM: function (that) {
+    if (typeof that !== "object") {
       that = new this._class(that);
     }
     var i,
@@ -129,7 +128,7 @@ bn.prototype = {
     return this;
   },
   /** this *= 2.  Requires normalized; ends up normalized. */
-  doubleM: function doubleM() {
+  doubleM: function () {
     var i,
       carry = 0,
       tmp,
@@ -148,7 +147,7 @@ bn.prototype = {
     return this;
   },
   /** this /= 2, rounded down.  Requires normalized; ends up normalized. */
-  halveM: function halveM() {
+  halveM: function () {
     var i,
       carry = 0,
       tmp,
@@ -165,8 +164,8 @@ bn.prototype = {
     return this;
   },
   /** this -= that.  Does not normalize. */
-  subM: function subM(that) {
-    if (_typeof(that) !== "object") {
+  subM: function (that) {
+    if (typeof that !== "object") {
       that = new this._class(that);
     }
     var i,
@@ -180,7 +179,7 @@ bn.prototype = {
     }
     return this;
   },
-  mod: function mod(that) {
+  mod: function (that) {
     var neg = !this.greaterEquals(new sjcl.bn(0));
     that = new sjcl.bn(that).normalize(); // copy before we begin
     var out = new sjcl.bn(this).normalize(),
@@ -199,7 +198,7 @@ bn.prototype = {
     return out.trim();
   },
   /** return inverse mod prime p.  p must be odd. Binary extended Euclidean algorithm mod p. */
-  inverseMod: function inverseMod(p) {
+  inverseMod: function (p) {
     var a = new sjcl.bn(1),
       b = new sjcl.bn(0),
       x = new sjcl.bn(this),
@@ -250,15 +249,15 @@ bn.prototype = {
     return b;
   },
   /** this + that.  Does not normalize. */
-  add: function add(that) {
+  add: function (that) {
     return this.copy().addM(that);
   },
   /** this - that.  Does not normalize. */
-  sub: function sub(that) {
+  sub: function (that) {
     return this.copy().subM(that);
   },
   /** this * that.  Normalizes and reduces. */
-  mul: function mul(that) {
+  mul: function (that) {
     if (typeof that === "number") {
       that = new this._class(that);
     } else {
@@ -291,11 +290,11 @@ bn.prototype = {
     return out.cnormalize().reduce();
   },
   /** this ^ 2.  Normalizes and reduces. */
-  square: function square() {
+  square: function () {
     return this.mul(this);
   },
   /** this ^ n.  Uses square-and-multiply.  Normalizes and reduces. */
-  power: function power(l) {
+  power: function (l) {
     l = new sjcl.bn(l).normalize().trim().limbs;
     var i,
       j,
@@ -315,11 +314,11 @@ bn.prototype = {
     return out;
   },
   /** this * that mod N */
-  mulmod: function mulmod(that, N) {
+  mulmod: function (that, N) {
     return this.mod(N).mul(that.mod(N)).mod(N);
   },
   /** this ^ x mod N */
-  powermod: function powermod(x, N) {
+  powermod: function (x, N) {
     x = new bn(x);
     N = new bn(N);
 
@@ -350,7 +349,7 @@ bn.prototype = {
     return out;
   },
   /** this ^ x mod N with Montomery reduction */
-  montpowermod: function montpowermod(x, N) {
+  montpowermod: function (x, N) {
     x = new sjcl.bn(x).normalize().trim();
     N = new bn(N);
     var i,
@@ -419,10 +418,10 @@ bn.prototype = {
     if (!RR.mul(RP).sub(N.mul(NP)).equals(1)) {
       return false;
     }
-    var montIn = function montIn(c) {
+    var montIn = function (c) {
         return montMul(c, R2);
       },
-      montMul = function montMul(a, b) {
+      montMul = function (a, b) {
         // Standard Montgomery reduction
         var k,
           ab,
@@ -451,7 +450,7 @@ bn.prototype = {
         }
         return abBar;
       },
-      montOut = function montOut(c) {
+      montOut = function (c) {
         return montMul(c, 1);
       };
     pow = montIn(pow);
@@ -466,7 +465,7 @@ bn.prototype = {
     for (h = 1; h <= cap; h++) {
       precomp[2 * h + 1] = montMul(precomp[2 * h - 1], precomp[2]);
     }
-    var getBit = function getBit(exp, i) {
+    var getBit = function (exp, i) {
       // Gets ith bit of exp.
       var off = i % exp.radix;
       return (exp.limbs[Math.floor(i / exp.radix)] & 1 << off) >> off;
@@ -497,7 +496,7 @@ bn.prototype = {
     }
     return montOut(out);
   },
-  trim: function trim() {
+  trim: function () {
     var l = this.limbs,
       p;
     do {
@@ -507,15 +506,15 @@ bn.prototype = {
     return this;
   },
   /** Reduce mod a modulus.  Stubbed for subclassing. */
-  reduce: function reduce() {
+  reduce: function () {
     return this;
   },
   /** Reduce and normalize. */
-  fullReduce: function fullReduce() {
+  fullReduce: function () {
     return this.normalize();
   },
   /** Propagate carries. */
-  normalize: function normalize() {
+  normalize: function () {
     var carry = 0,
       i,
       pv = this.placeVal,
@@ -537,7 +536,7 @@ bn.prototype = {
     return this;
   },
   /** Constant-time normalize. Does not allocate additional space. */
-  cnormalize: function cnormalize() {
+  cnormalize: function () {
     var carry = 0,
       i,
       ipv = this.ipv,
@@ -555,7 +554,7 @@ bn.prototype = {
     return this;
   },
   /** Serialize to a bit array */
-  toBits: function toBits(len) {
+  toBits: function (len) {
     this.fullReduce();
     len = len || this.exponent || this.bitLength();
     var i = Math.floor((len - 1) / 24),
@@ -569,7 +568,7 @@ bn.prototype = {
     return out;
   },
   /** Return the length in bits, rounded up to the nearest byte. */
-  bitLength: function bitLength() {
+  bitLength: function () {
     this.fullReduce();
     var out = this.radix * (this.limbs.length - 1),
       b = this.limbs[this.limbs.length - 1];
@@ -755,7 +754,7 @@ bn.prime = {
   p521: sbp(521, [[0, -1]])
 };
 bn.random = function (modulus, paranoia) {
-  if (_typeof(modulus) !== "object") {
+  if (typeof modulus !== "object") {
     modulus = new bn(modulus);
   }
   var words,

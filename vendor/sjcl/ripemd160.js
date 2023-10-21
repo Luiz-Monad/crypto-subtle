@@ -1,9 +1,10 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var hash = sjcl.hash = sjcl.hash || {};
+var sjcl = require("./sjcl");
+var hash = module.exports = sjcl.hash = sjcl.hash || {};
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
+;
 /** @fileOverview Javascript RIPEMD-160 implementation.
  *
  * @author Artem S Vybornov <vybornov@gmail.com>
@@ -36,7 +37,7 @@ hash.ripemd160.prototype = {
    * Reset the hash state.
    * @return this
    */
-  reset: function reset() {
+  reset: function () {
     this._h = _h0.slice(0);
     this._buffer = [];
     this._length = 0;
@@ -47,7 +48,7 @@ hash.ripemd160.prototype = {
    * @param {bitArray|String} data the data to hash.
    * @return this
    */
-  update: function update(data) {
+  update: function (data) {
     if (typeof data === "string") data = codec.utf8String.toBits(data);
     var i,
       b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
@@ -67,7 +68,7 @@ hash.ripemd160.prototype = {
    * Complete hashing and output the hash value.
    * @return {bitArray} The hash value, an array of 5 big-endian words.
    */
-  finalize: function finalize() {
+  finalize: function () {
     var b = sjcl.bitArray.concat(this._buffer, [sjcl.bitArray.partial(1, 1)]),
       l = (this._length + 1) % 512,
       z = (l > 448 ? 512 : 448) - l % 448,

@@ -1,19 +1,15 @@
-import { __module as csr } from '../../_virtual/csr.js';
-import require$$4 from 'crypto';
-import { asn1Exports } from './asn1.js';
-import { encodingExports } from './encoding.js';
-import { pemExports } from './pem.js';
-import { x509Exports } from './x509.js';
+'use strict';
 
-var crypto = require$$4;
-var ASN1 = asn1Exports;
-var Enc = encodingExports;
-var PEM = pemExports;
-var X509 = x509Exports;
+var crypto = require('crypto');
+var ASN1 = require('./asn1.js');
+var Enc = require('./encoding.js');
+var PEM = require('./pem.js');
+var X509 = require('./x509.js');
+var Rasha = require('rasha');
 var RSA = {};
 
 /*global Promise*/
-var CSR = csr.exports = function rsacsr(opts) {
+var CSR = module.exports = function rsacsr(opts) {
   // We're using a Promise here to be compatible with the browser version
   // which will probably use the webcrypto API for some of the conversions
   opts = CSR._prepare(opts);
@@ -22,7 +18,6 @@ var CSR = csr.exports = function rsacsr(opts) {
   });
 };
 CSR._prepare = function (opts) {
-  var Rasha;
   opts = JSON.parse(JSON.stringify(opts));
   var pem, jwk;
 
@@ -30,7 +25,9 @@ CSR._prepare = function (opts) {
   if (!opts) {
     throw new Error("You must pass options with key and domains to rsacsr");
   }
-  if (!Array.isArray(opts.domains) || 0 === opts.domains.length) ;
+  if (!Array.isArray(opts.domains) || 0 === opts.domains.length) {
+    new Error("You must pass options.domains as a non-empty array");
+  }
 
   // I need to check that 例.中国 is a valid domain name
   if (!opts.domains.every(function (d) {
@@ -55,11 +52,6 @@ CSR._prepare = function (opts) {
     }
   }
   if (pem) {
-    try {
-      Rasha = require('rasha');
-    } catch (e) {
-      throw new Error("Rasha.js is an optional dependency for PEM-to-JWK.\n" + "Install it if you'd like to use it:\n" + "\tnpm install --save rasha\n" + "Otherwise supply a jwk as the private key.");
-    }
     jwk = Rasha.importSync({
       pem: pem
     });
@@ -155,7 +147,3 @@ RSA.sign = function signRsa(keypem, ab) {
     return RSA.signSync(keypem, ab);
   });
 };
-
-var csrExports = csr.exports;
-
-export { csrExports };

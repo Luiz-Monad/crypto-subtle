@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './md.js';
-import './util.js';
+"use strict";
 
 /**
  * Hash-based Message Authentication Code implementation. Requires a message
@@ -11,12 +9,12 @@ import './util.js';
  *
  * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
  */
-var forge = forge$1;
-
-
+var forge = require('./forge');
+require('./md');
+require('./util');
 
 /* HMAC API */
-var hmac = forge.hmac = forge.hmac || {};
+var hmac = module.exports = forge.hmac = forge.hmac || {};
 
 /**
  * Creates an HMAC object that uses the given message digest object.

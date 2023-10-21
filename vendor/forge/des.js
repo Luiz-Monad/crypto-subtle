@@ -1,7 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './cipher.js';
-import './cipherModes.js';
-import './util.js';
+"use strict";
 
 /**
  * DES (Data Encryption Standard) implementation.
@@ -34,13 +31,13 @@ import './util.js';
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
-
-
+var forge = require('./forge');
+require('./cipher');
+require('./cipherModes');
+require('./util');
 
 /* DES API */
-forge.des = forge.des || {};
+module.exports = forge.des = forge.des || {};
 
 /**
  * Deprecated. Instead, use:
@@ -164,10 +161,10 @@ forge.des.Algorithm = function (name, mode) {
   self.mode = new mode({
     blockSize: 8,
     cipher: {
-      encrypt: function encrypt(inBlock, outBlock) {
+      encrypt: function (inBlock, outBlock) {
         return _updateBlock(self._keys, inBlock, outBlock, false);
       },
-      decrypt: function decrypt(inBlock, outBlock) {
+      decrypt: function (inBlock, outBlock) {
         return _updateBlock(self._keys, inBlock, outBlock, true);
       }
     }
@@ -212,7 +209,7 @@ registerAlgorithm('3DES-CFB', forge.cipher.modes.cfb);
 registerAlgorithm('3DES-OFB', forge.cipher.modes.ofb);
 registerAlgorithm('3DES-CTR', forge.cipher.modes.ctr);
 function registerAlgorithm(name, mode) {
-  var factory = function factory() {
+  var factory = function () {
     return new forge.des.Algorithm(name, mode);
   };
   forge.cipher.registerAlgorithm(name, factory);

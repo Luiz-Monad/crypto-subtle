@@ -1,12 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './asn1.js';
-import './hmac.js';
-import './md5.js';
-import './pem.js';
-import './pki.js';
-import './random.js';
-import './sha1.js';
-import './util.js';
+"use strict";
 
 /**
  * A Javascript implementation of Transport Layer Security (TLS).
@@ -240,16 +232,15 @@ import './util.js';
  * due to the large block size of existing MACs and the small size of the
  * timing signal.
  */
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var forge = forge$1;
-
-
-
-
-
-
-
-
+var forge = require('./forge');
+require('./asn1');
+require('./hmac');
+require('./md5');
+require('./pem');
+require('./pki');
+require('./random');
+require('./sha1');
+require('./util');
 
 /**
  * Generates pseudo random bytes by mixing the result of two hash functions,
@@ -298,7 +289,7 @@ var forge = forge$1;
  *
  * @return the pseudo random bytes in a byte buffer.
  */
-var prf_TLS1 = function prf_TLS1(secret, label, seed, length) {
+var prf_TLS1 = function (secret, label, seed, length) {
   var rval = forge.util.createBuffer();
 
   /* For TLS 1.0, the secret is split in half, into two secrets of equal
@@ -357,6 +348,20 @@ var prf_TLS1 = function prf_TLS1(secret, label, seed, length) {
 };
 
 /**
+ * Generates pseudo random bytes using a SHA256 algorithm. For TLS 1.2.
+ *
+ * @param secret the secret to use.
+ * @param label the label to use.
+ * @param seed the seed value to use.
+ * @param length the number of bytes to generate.
+ *
+ * @return the pseudo random bytes in a byte buffer.
+ */
+var prf_sha256 = function (secret, label, seed, length) {
+  // FIXME: implement me for TLS 1.2
+};
+
+/**
  * Gets a MAC for a record using the SHA-1 hash algorithm.
  *
  * @param key the mac key.
@@ -365,7 +370,7 @@ var prf_TLS1 = function prf_TLS1(secret, label, seed, length) {
  *
  * @return the sha-1 hash (20 bytes) for the given record.
  */
-var hmac_sha1 = function hmac_sha1(key, seqNum, record) {
+var hmac_sha1 = function (key, seqNum, record) {
   /* MAC is computed like so:
   HMAC_hash(
     key, seqNum +
@@ -398,7 +403,7 @@ var hmac_sha1 = function hmac_sha1(key, seqNum, record) {
  *
  * @return true on success, false on failure.
  */
-var deflate = function deflate(c, record, s) {
+var deflate = function (c, record, s) {
   var rval = false;
   try {
     var bytes = c.deflate(record.fragment.getBytes());
@@ -421,7 +426,7 @@ var deflate = function deflate(c, record, s) {
  *
  * @return true on success, false on failure.
  */
-var inflate = function inflate(c, record, s) {
+var inflate = function (c, record, s) {
   var rval = false;
   try {
     var bytes = c.inflate(record.fragment.getBytes());
@@ -450,7 +455,7 @@ var inflate = function inflate(c, record, s) {
  *
  * @return the resulting byte buffer.
  */
-var readVector = function readVector(b, lenBytes) {
+var readVector = function (b, lenBytes) {
   var len = 0;
   switch (lenBytes) {
     case 1:
@@ -478,7 +483,7 @@ var readVector = function readVector(b, lenBytes) {
  * @param lenBytes the number of bytes required to store the length.
  * @param v the byte buffer vector.
  */
-var writeVector = function writeVector(b, lenBytes, v) {
+var writeVector = function (b, lenBytes, v) {
   // encode length at the start of the vector, where the number of bytes for
   // the length is the maximum number of bytes it would take to encode the
   // vector's ceiling
@@ -1609,7 +1614,7 @@ tls.handleServerHelloDone = function (c, record, length) {
       // check for custom alert info
       if (ret || ret === 0) {
         // set custom message and alert description
-        if (_typeof(ret) === 'object' && !forge.util.isArray(ret)) {
+        if (typeof ret === 'object' && !forge.util.isArray(ret)) {
           if (ret.message) {
             error.message = ret.message;
           }
@@ -1647,7 +1652,7 @@ tls.handleServerHelloDone = function (c, record, length) {
   c.expect = SER;
 
   // create callback to handle client signature (for client-certs)
-  var callback = function callback(c, signature) {
+  var callback = function (c, signature) {
     if (c.session.certificateRequest !== null && c.session.clientCertificate !== null) {
       // create certificate verify message
       tls.queue(c, tls.createRecord(c, {
@@ -2171,6 +2176,7 @@ var CCV = 3; // rcv certificate verify
 var CCC = 4; // rcv change cipher spec
 var CFI = 5; // rcv finished
 var CAD = 6; // rcv application data
+var CER = 7; // not expecting any messages at this point
 
 // map client current expect state and content type to function
 var __ = tls.handleUnexpected;
@@ -2385,7 +2391,7 @@ tls.generateKeys = function (c, sp) {
  */
 tls.createConnectionState = function (c) {
   var client = c.entity === tls.ConnectionEnd.client;
-  var createMode = function createMode() {
+  var createMode = function () {
     var mode = {
       // two 32-bit numbers, first is most significant
       sequenceNumber: [0, 0],
@@ -2393,14 +2399,14 @@ tls.createConnectionState = function (c) {
       macLength: 0,
       macFunction: null,
       cipherState: null,
-      cipherFunction: function cipherFunction(record) {
+      cipherFunction: function (record) {
         return true;
       },
       compressionState: null,
-      compressFunction: function compressFunction(record) {
+      compressFunction: function (record) {
         return true;
       },
-      updateSequenceNumber: function updateSequenceNumber() {
+      updateSequenceNumber: function () {
         if (mode.sequenceNumber[1] === 0xFFFFFFFF) {
           mode.sequenceNumber[1] = 0;
           ++mode.sequenceNumber[0];
@@ -2980,9 +2986,18 @@ tls.createClientKeyExchange = function (c) {
  * @return the ServerKeyExchange byte buffer.
  */
 tls.createServerKeyExchange = function (c) {
+  // this implementation only supports RSA, no Diffie-Hellman support,
+  // so this record is empty
+
+  // determine length of the handshake message
+  var length = 0;
 
   // build record fragment
   var rval = forge.util.createBuffer();
+  if (length > 0) {
+    rval.putByte(tls.HandshakeType.server_key_exchange);
+    rval.putInt24(length);
+  }
   return rval;
 };
 
@@ -3393,7 +3408,7 @@ tls.flush = function (c) {
  *
  * @return the alert description.
  */
-var _certErrorToAlertDesc = function _certErrorToAlertDesc(error) {
+var _certErrorToAlertDesc = function (error) {
   switch (error) {
     case true:
       return true;
@@ -3421,7 +3436,7 @@ var _certErrorToAlertDesc = function _certErrorToAlertDesc(error) {
  *
  * @return the certificate error.
  */
-var _alertDescToCertError = function _alertDescToCertError(desc) {
+var _alertDescToCertError = function (desc) {
   switch (desc) {
     case true:
       return true;
@@ -3467,7 +3482,7 @@ tls.verifyCertificateChain = function (c, chain) {
       // call application callback
       var ret = c.verify(c, vfd, depth, chain);
       if (ret !== true) {
-        if (_typeof(ret) === 'object' && !forge.util.isArray(ret)) {
+        if (typeof ret === 'object' && !forge.util.isArray(ret)) {
           // throw custom error
           var error = new Error('The application rejected the certificate.');
           error.send = true;
@@ -3497,7 +3512,7 @@ tls.verifyCertificateChain = function (c, chain) {
   } catch (ex) {
     // build tls error if not already customized
     var err = ex;
-    if (_typeof(err) !== 'object' || forge.util.isArray(err)) {
+    if (typeof err !== 'object' || forge.util.isArray(err)) {
       err = {
         send: true,
         alert: {
@@ -3660,7 +3675,7 @@ tls.createConnection = function (options) {
     dataReady: options.dataReady,
     heartbeatReceived: options.heartbeatReceived,
     closed: options.closed,
-    error: function error(c, ex) {
+    error: function (c, ex) {
       // set origin if not set
       ex.origin = ex.origin || (c.entity === tls.ConnectionEnd.client ? 'client' : 'server');
 
@@ -3728,7 +3743,7 @@ tls.createConnection = function (options) {
    * @param c the TLS connection.
    * @param record the TLS record to act on.
    */
-  var _update = function _update(c, record) {
+  var _update = function (c, record) {
     // get record handler (align type in table by subtracting lowest)
     var aligned = record.type - tls.ContentType.change_cipher_spec;
     var handlers = ctTable[c.entity][c.expect];
@@ -3749,7 +3764,7 @@ tls.createConnection = function (options) {
    * @return 0 if the input data could be processed, otherwise the
    *         number of bytes required for data to be processed.
    */
-  var _readRecordHeader = function _readRecordHeader(c) {
+  var _readRecordHeader = function (c) {
     var rval = 0;
 
     // get input buffer and its length
@@ -3802,7 +3817,7 @@ tls.createConnection = function (options) {
    * @return 0 if the input data could be processed, otherwise the
    *         number of bytes required for data to be processed.
    */
-  var _readRecord = function _readRecord(c) {
+  var _readRecord = function (c) {
     var rval = 0;
 
     // ensure there is enough input data to get the entire record
@@ -4076,7 +4091,7 @@ tls.createConnection = function (options) {
 };
 
 /* TLS API */
-forge.tls = forge.tls || {};
+module.exports = forge.tls = forge.tls || {};
 
 // expose non-functions
 for (var key in tls) {

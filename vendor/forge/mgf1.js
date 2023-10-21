@@ -1,5 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './util.js';
+"use strict";
 
 /**
  * Javascript implementation of mask generation function MGF1.
@@ -10,10 +9,10 @@ import './util.js';
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
+var forge = require('./forge');
+require('./util');
 forge.mgf = forge.mgf || {};
-var mgf1 = forge.mgf.mgf1 = forge.mgf1 = forge.mgf1 || {};
+var mgf1 = module.exports = forge.mgf.mgf1 = forge.mgf1 = forge.mgf1 || {};
 
 /**
  * Creates a MGF1 mask generation function object.
@@ -31,7 +30,7 @@ mgf1.create = function (md) {
      * @param maskLen Number of bytes to generate.
      * @return {String} The generated mask.
      */
-    generate: function generate(seed, maskLen) {
+    generate: function (seed, maskLen) {
       /* 2. Let T be the empty octet string. */
       var t = new forge.util.ByteBuffer();
 

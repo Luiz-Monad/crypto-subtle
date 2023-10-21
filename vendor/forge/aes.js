@@ -1,7 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './cipher.js';
-import './cipherModes.js';
-import './util.js';
+"use strict";
 
 /**
  * Advanced Encryption Standard (AES) implementation.
@@ -20,13 +17,13 @@ import './util.js';
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
-var forge = forge$1;
-
-
-
+var forge = require('./forge');
+require('./cipher');
+require('./cipherModes');
+require('./util');
 
 /* AES API */
-forge.aes = forge.aes || {};
+module.exports = forge.aes = forge.aes || {};
 
 /**
  * Deprecated. Instead, use:
@@ -153,10 +150,10 @@ forge.aes.Algorithm = function (name, mode) {
   self.mode = new mode({
     blockSize: 16,
     cipher: {
-      encrypt: function encrypt(inBlock, outBlock) {
+      encrypt: function (inBlock, outBlock) {
         return _updateBlock(self._w, inBlock, outBlock, false);
       },
-      decrypt: function decrypt(inBlock, outBlock) {
+      decrypt: function (inBlock, outBlock) {
         return _updateBlock(self._w, inBlock, outBlock, true);
       }
     }
@@ -259,7 +256,7 @@ registerAlgorithm('AES-OFB', forge.cipher.modes.ofb);
 registerAlgorithm('AES-CTR', forge.cipher.modes.ctr);
 registerAlgorithm('AES-GCM', forge.cipher.modes.gcm);
 function registerAlgorithm(name, mode) {
-  var factory = function factory() {
+  var factory = function () {
     return new forge.aes.Algorithm(name, mode);
   };
   forge.cipher.registerAlgorithm(name, factory);

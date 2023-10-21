@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var mode = sjcl.mode = sjcl.mode || {};
+var sjcl = require("./sjcl");
+var mode = module.exports = sjcl.mode = sjcl.mode || {};
 /** @fileOverview OCB 2.0 implementation
  *
  * @author Emily Stark
@@ -33,7 +33,7 @@ mode.ocb2 = {
    * @return The encrypted data, an array of bytes.
    * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits.
    */
-  encrypt: function encrypt(prp, plaintext, iv, adata, tlen, premac) {
+  encrypt: function (prp, plaintext, iv, adata, tlen, premac) {
     if (sjcl.bitArray.bitLength(iv) !== 128) {
       throw new sjcl.exception.invalid("ocb iv must be 128 bits");
     }
@@ -84,7 +84,7 @@ mode.ocb2 = {
    * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits.
    * @throws {sjcl.exception.corrupt} if if the message is corrupt.
    */
-  decrypt: function decrypt(prp, ciphertext, iv, adata, tlen, premac) {
+  decrypt: function (prp, ciphertext, iv, adata, tlen, premac) {
     if (sjcl.bitArray.bitLength(iv) !== 128) {
       throw new sjcl.exception.invalid("ocb iv must be 128 bits");
     }
@@ -131,7 +131,7 @@ mode.ocb2 = {
    * @param {Object} prp The block cipher.  It must have a block size of 16 bytes.
    * @param {bitArray} adata The authenticated data.
    */
-  pmac: function pmac(prp, adata) {
+  pmac: function (prp, adata) {
     var i,
       times2 = sjcl.mode.ocb2._times2,
       w = sjcl.bitArray,
@@ -155,7 +155,7 @@ mode.ocb2 = {
   /** Double a block of words, OCB style.
    * @private
    */
-  _times2: function _times2(x) {
+  _times2: function (x) {
     return [x[0] << 1 ^ x[1] >>> 31, x[1] << 1 ^ x[2] >>> 31, x[2] << 1 ^ x[3] >>> 31, x[3] << 1 ^ (x[0] >>> 31) * 0x87];
   }
 };

@@ -1,4 +1,4 @@
-import { encodingExports } from './encoding.js';
+'use strict';
 
 //
 // A dumbed-down, minimal ASN.1 parser / packer combo
@@ -9,7 +9,7 @@ import { encodingExports } from './encoding.js';
 // to use written as-is, asymmetrically.
 // (I also generally prefer to export objects rather
 // functions but, yet again, asthetics one in this case)
-var Enc = encodingExports;
+var Enc = require('./encoding.js');
 
 //
 // Packer
@@ -17,7 +17,7 @@ var Enc = encodingExports;
 
 // Almost every ASN.1 type that's important for CSR
 // can be represented generically with only a few rules.
-var ASN1 = asn1 = function ASN1( /*type, hexstrings...*/
+var ASN1 = module.exports = function ASN1( /*type, hexstrings...*/
 ) {
   var args = Array.prototype.slice.call(arguments);
   var typ = args.shift();
@@ -190,7 +190,9 @@ ASN1.tpl = function (asn1) {
   function write(asn1, k) {
     str += "\n" + ws;
     var val;
-    if ('number' !== typeof k) ; else {
+    if ('number' !== typeof k) {
+      // ignore
+    } else {
       str += ', ';
     }
     if (0x02 === asn1.type) {
@@ -236,6 +238,4 @@ ASN1.tpl = function (asn1) {
   console.info();
   console.info('buildSchema(opts);');
 };
-var asn1 = ASN1;
-
-export { asn1 };
+module.exports = ASN1;

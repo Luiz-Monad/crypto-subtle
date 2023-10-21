@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './asn1.js';
-import './util.js';
+"use strict";
 
 /**
  * Javascript implementation of ASN.1 validators for PKCS#7 v1.5.
@@ -111,15 +109,15 @@ import './util.js';
  *
  * EncryptedKey ::= OCTET STRING
  */
-var forge = forge$1;
-
-
+var forge = require('./forge');
+require('./asn1');
+require('./util');
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
 
 // shortcut for PKCS#7 API
-var p7v = forge.pkcs7asn1 = forge.pkcs7asn1 || {};
+var p7v = module.exports = forge.pkcs7asn1 = forge.pkcs7asn1 || {};
 forge.pkcs7 = forge.pkcs7 || {};
 forge.pkcs7.asn1 = p7v;
 var contentInfoValidator = {

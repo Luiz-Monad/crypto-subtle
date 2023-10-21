@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var codec = sjcl.codec = sjcl.codec || {};
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
 var bitArray = sjcl.bitArray;
 /** @fileOverview Bit array codec implementations.
  *
@@ -25,9 +25,9 @@ codec.base32 = {
   /* bits - base */
   REMAINING: 27,
   /** Convert from a bitArray to a base32 string. */
-  fromBits: function fromBits(arr, _noEquals, _hex) {
-    sjcl.codec.base32.BITS;
-      var BASE = sjcl.codec.base32.BASE,
+  fromBits: function (arr, _noEquals, _hex) {
+    var BITS = sjcl.codec.base32.BITS,
+      BASE = sjcl.codec.base32.BASE,
       REMAINING = sjcl.codec.base32.REMAINING;
     var out = "",
       i,
@@ -55,7 +55,7 @@ codec.base32 = {
     return out;
   },
   /** Convert from a base32 string to a bitArray */
-  toBits: function toBits(str, _hex) {
+  toBits: function (str, _hex) {
     str = str.replace(/\s|=/g, '').toUpperCase();
     var BITS = sjcl.codec.base32.BITS,
       BASE = sjcl.codec.base32.BASE,
@@ -98,10 +98,10 @@ codec.base32 = {
   }
 };
 codec.base32hex = {
-  fromBits: function fromBits(arr, _noEquals) {
+  fromBits: function (arr, _noEquals) {
     return sjcl.codec.base32.fromBits(arr, _noEquals, 1);
   },
-  toBits: function toBits(str) {
+  toBits: function (str) {
     return sjcl.codec.base32.toBits(str, 1);
   }
 };

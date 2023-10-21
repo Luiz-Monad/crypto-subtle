@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var arrayBuffer = sjcl.arrayBuffer = sjcl.arrayBuffer || {};
+var sjcl = require("./sjcl");
+var arrayBuffer = module.exports = sjcl.arrayBuffer = sjcl.arrayBuffer || {};
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
 var mode = sjcl.mode;
@@ -33,11 +33,12 @@ arrayBuffer.ccm = {
    * @param {Number} [tlen=64] the desired tag length, in bits.
    * @return {bitArray} The encrypted data, an array of bytes.
    */
-  compat_encrypt: function compat_encrypt(prf, plaintext, iv, adata, tlen) {
+  compat_encrypt: function (prf, plaintext, iv, adata, tlen) {
     var plaintext_buffer = sjcl.codec.arrayBuffer.fromBits(plaintext, true, 16),
       ol = sjcl.bitArray.bitLength(plaintext) / 8,
       encrypted_obj,
-      ct;
+      ct,
+      tag;
     tlen = tlen || 64;
     adata = adata || [];
     encrypted_obj = arrayBuffer.ccm.encrypt(prf, plaintext_buffer, iv, adata, tlen, ol);
@@ -54,13 +55,16 @@ arrayBuffer.ccm = {
    * @param {Number} [tlen=64] tlen the desired tag length, in bits.
    * @return {bitArray} The decrypted data.
    */
-  compat_decrypt: function compat_decrypt(prf, ciphertext, iv, adata, tlen) {
+  compat_decrypt: function (prf, ciphertext, iv, adata, tlen) {
     tlen = tlen || 64;
     adata = adata || [];
-    var w = sjcl.bitArray,
+    var L,
+      i,
+      w = sjcl.bitArray,
       ol = w.bitLength(ciphertext),
       out = w.clamp(ciphertext, ol - tlen),
       tag = w.bitSlice(ciphertext, ol - tlen),
+      tag2,
       ciphertext_buffer = sjcl.codec.arrayBuffer.fromBits(out, true, 16);
     var plaintext_buffer = sjcl.arrayBuffer.ccm.decrypt(prf, ciphertext_buffer, iv, tag, adata, tlen, (ol - tlen) / 8);
     return sjcl.bitArray.clamp(sjcl.codec.arrayBuffer.toBits(plaintext_buffer), ol - tlen);
@@ -74,8 +78,9 @@ arrayBuffer.ccm = {
    * @param {Number} [tlen=128] the desired tag length, in bits.
    * @return {ArrayBuffer} The encrypted data, in the same array buffer as the given plaintext, but given back anyways
    */
-  encrypt: function encrypt(prf, plaintext_buffer, iv, adata, tlen, ol) {
-    var mac,
+  encrypt: function (prf, plaintext_buffer, iv, adata, tlen, ol) {
+    var auth_blocks,
+      mac,
       L,
       w = sjcl.bitArray,
       ivl = w.bitLength(iv) / 8;
@@ -115,9 +120,10 @@ arrayBuffer.ccm = {
    * @param {Number} [tlen=128] the desired tag length, in bits.
    * @return {ArrayBuffer} The decrypted data, in the same array buffer as the given buffer, but given back anyways
    */
-  decrypt: function decrypt(prf, ciphertext_buffer, iv, tag, adata, tlen, ol) {
+  decrypt: function (prf, ciphertext_buffer, iv, tag, adata, tlen, ol) {
     var mac,
       mac2,
+      i,
       L,
       w = sjcl.bitArray,
       ivl = w.bitLength(iv) / 8;
@@ -154,11 +160,16 @@ arrayBuffer.ccm = {
    * @return {bitArray} The tag, but not yet encrypted.
    * @private
    */
-  _computeTag: function _computeTag(prf, data_buffer, iv, adata, tlen, ol, L) {
+  _computeTag: function (prf, data_buffer, iv, adata, tlen, ol, L) {
     var i,
+      plaintext,
       mac,
-      data;
-      sjcl.bitArray;
+      data,
+      data_blocks_size,
+      data_blocks,
+      w = sjcl.bitArray,
+      tmp,
+      macData;
     mac = mode.ccm._macAdditionalData(prf, adata, iv, tlen, ol, L);
     if (data_buffer.byteLength !== 0) {
       data = new DataView(data_buffer);
@@ -189,7 +200,7 @@ arrayBuffer.ccm = {
    * @return {Object} An object with data and tag, the en/decryption of data and tag values.
    * @private
    */
-  _ctrMode: function _ctrMode(prf, data_buffer, iv, mac, tlen, L) {
+  _ctrMode: function (prf, data_buffer, iv, mac, tlen, L) {
     var data,
       ctr,
       word0,

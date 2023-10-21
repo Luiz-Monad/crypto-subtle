@@ -1,13 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './aes.js';
-import './asn1.js';
-import './des.js';
-import './oids.js';
-import './pem.js';
-import './pkcs7asn1.js';
-import './random.js';
-import './util.js';
-import './x509.js';
+"use strict";
 
 /**
  * Javascript implementation of PKCS#7 v1.5.
@@ -27,23 +18,22 @@ import './x509.js';
  * a separate file pkcs7asn1.js, since those are referenced from other
  * PKCS standards like PKCS #12.
  */
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var forge = forge$1;
-
-
-
-
-
-
-
-
-
+var forge = require('./forge');
+require('./aes');
+require('./asn1');
+require('./des');
+require('./oids');
+require('./pem');
+require('./pkcs7asn1');
+require('./random');
+require('./util');
+require('./x509');
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
 
 // shortcut for PKCS#7 API
-var p7 = forge.pkcs7 = forge.pkcs7 || {};
+var p7 = module.exports = forge.pkcs7 = forge.pkcs7 || {};
 
 /**
  * Converts a PKCS#7 message from PEM format.
@@ -134,7 +124,7 @@ p7.createSignedData = function () {
     digestAlgorithmIdentifiers: [],
     contentInfo: null,
     signerInfos: [],
-    fromAsn1: function fromAsn1(obj) {
+    fromAsn1: function (obj) {
       // validate SignedData content block and capture data.
       _fromAsn1(msg, obj, p7.asn1.signedDataValidator);
       msg.certificates = [];
@@ -152,7 +142,7 @@ p7.createSignedData = function () {
       // TODO: parse crls
     },
 
-    toAsn1: function toAsn1() {
+    toAsn1: function () {
       // degenerate case with no content
       if (!msg.contentInfo) {
         msg.sign();
@@ -230,7 +220,7 @@ p7.createSignedData = function () {
      *          [authenticatedAttributes] an optional array of attributes
      *            to also sign along with the content.
      */
-    addSigner: function addSigner(signer) {
+    addSigner: function (signer) {
       var issuer = signer.issuer;
       var serialNumber = signer.serialNumber;
       if (signer.certificate) {
@@ -306,10 +296,10 @@ p7.createSignedData = function () {
      * @param options Options to apply when signing:
      *    [detached] boolean. If signing should be done in detached mode. Defaults to false.
      */
-    sign: function sign(options) {
+    sign: function (options) {
       options = options || {};
       // auto-generate content info
-      if (_typeof(msg.content) !== 'object' || msg.contentInfo === null) {
+      if (typeof msg.content !== 'object' || msg.contentInfo === null) {
         // use Data ContentInfo
         msg.contentInfo = asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // ContentType
@@ -344,7 +334,7 @@ p7.createSignedData = function () {
       // generate signerInfos
       addSignerInfos(mds);
     },
-    verify: function verify() {
+    verify: function () {
       throw new Error('PKCS#7 signature verification not yet implemented.');
     },
     /**
@@ -352,7 +342,7 @@ p7.createSignedData = function () {
      *
      * @param cert the certificate to add.
      */
-    addCertificate: function addCertificate(cert) {
+    addCertificate: function (cert) {
       // convert from PEM
       if (typeof cert === 'string') {
         cert = forge.pki.certificateFromPem(cert);
@@ -364,7 +354,7 @@ p7.createSignedData = function () {
      *
      * @param crl the certificate revokation list to add.
      */
-    addCertificateRevokationList: function addCertificateRevokationList(crl) {
+    addCertificateRevokationList: function (crl) {
       throw new Error('PKCS#7 CRL support not yet implemented.');
     }
   };
@@ -507,7 +497,7 @@ p7.createEncryptedData = function () {
      *
      * @param obj The ASN.1 representation of the EncryptedData content block
      */
-    fromAsn1: function fromAsn1(obj) {
+    fromAsn1: function (obj) {
       // Validate EncryptedData content block and capture data.
       _fromAsn1(msg, obj, p7.asn1.encryptedDataValidator);
     },
@@ -516,7 +506,7 @@ p7.createEncryptedData = function () {
      *
      * @param key The (symmetric) key as a byte buffer
      */
-    decrypt: function decrypt(key) {
+    decrypt: function (key) {
       if (key !== undefined) {
         msg.encryptedContent.key = key;
       }
@@ -545,12 +535,12 @@ p7.createEnvelopedData = function () {
      *
      * @param obj the ASN.1 representation of the EnvelopedData content block.
      */
-    fromAsn1: function fromAsn1(obj) {
+    fromAsn1: function (obj) {
       // validate EnvelopedData content block and capture data
       var capture = _fromAsn1(msg, obj, p7.asn1.envelopedDataValidator);
       msg.recipients = _recipientsFromAsn1(capture.recipientInfos.value);
     },
-    toAsn1: function toAsn1() {
+    toAsn1: function () {
       // ContentInfo
       return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
       // ContentType
@@ -571,7 +561,7 @@ p7.createEnvelopedData = function () {
      *
      * @return the recipient object.
      */
-    findRecipient: function findRecipient(cert) {
+    findRecipient: function (cert) {
       var sAttr = cert.issuer.attributes;
       for (var i = 0; i < msg.recipients.length; ++i) {
         var r = msg.recipients[i];
@@ -601,7 +591,7 @@ p7.createEnvelopedData = function () {
      * @param recipient The recipient object related to the private key
      * @param privKey The (RSA) private key object
      */
-    decrypt: function decrypt(recipient, privKey) {
+    decrypt: function (recipient, privKey) {
       if (msg.encryptedContent.key === undefined && recipient !== undefined && privKey !== undefined) {
         switch (recipient.encryptedContent.algorithm) {
           case forge.pki.oids.rsaEncryption:
@@ -620,7 +610,7 @@ p7.createEnvelopedData = function () {
      *
      * @param cert The certificate of the entity to add.
      */
-    addRecipient: function addRecipient(cert) {
+    addRecipient: function (cert) {
       msg.recipients.push({
         version: 0,
         issuer: cert.issuer.attributes,
@@ -647,7 +637,7 @@ p7.createEnvelopedData = function () {
      * @param [key] The key to be used for symmetric encryption.
      * @param [cipher] The OID of the symmetric cipher to use.
      */
-    encrypt: function encrypt(key, cipher) {
+    encrypt: function (key, cipher) {
       // Part 1: Symmetric encryption
       if (msg.encryptedContent.content === undefined) {
         cipher = cipher || msg.encryptedContent.algorithm;
@@ -809,6 +799,39 @@ function _recipientsToAsn1(recipients) {
 }
 
 /**
+ * Converts a single signer from an ASN.1 object.
+ *
+ * @param obj the ASN.1 representation of a SignerInfo.
+ *
+ * @return the signer object.
+ */
+function _signerFromAsn1(obj) {
+  // validate EnvelopedData content block and capture data
+  var capture = {};
+  var errors = [];
+  if (!asn1.validate(obj, p7.asn1.signerInfoValidator, capture, errors)) {
+    var error = new Error('Cannot read PKCS#7 SignerInfo. ' + 'ASN.1 object is not an PKCS#7 SignerInfo.');
+    error.errors = errors;
+    throw error;
+  }
+  var rval = {
+    version: capture.version.charCodeAt(0),
+    issuer: forge.pki.RDNAttributesAsArray(capture.issuer),
+    serialNumber: forge.util.createBuffer(capture.serial).toHex(),
+    digestAlgorithm: asn1.derToOid(capture.digestAlgorithm),
+    signatureAlgorithm: asn1.derToOid(capture.signatureAlgorithm),
+    signature: capture.signature,
+    authenticatedAttributes: [],
+    unauthenticatedAttributes: []
+  };
+
+  // TODO: convert attributes
+  var authenticatedAttributes = capture.authenticatedAttributes || [];
+  var unauthenticatedAttributes = capture.unauthenticatedAttributes || [];
+  return rval;
+}
+
+/**
  * Converts a single signerInfo object to an ASN.1 object.
  *
  * @param obj the signerInfo object.
@@ -862,6 +885,21 @@ function _signerToAsn1(obj) {
     rval.value.push(attrsAsn1);
   }
   return rval;
+}
+
+/**
+ * Map a set of SignerInfo ASN.1 objects to an array of signer objects.
+ *
+ * @param signerInfoAsn1s an array of ASN.1 SignerInfos (i.e. SET OF).
+ *
+ * @return an array of signers objects.
+ */
+function _signersFromAsn1(signerInfoAsn1s) {
+  var ret = [];
+  for (var i = 0; i < signerInfoAsn1s.length; ++i) {
+    ret.push(_signerFromAsn1(signerInfoAsn1s[i]));
+  }
+  return ret;
 }
 
 /**

@@ -1,15 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './aes.js';
-import './asn1.js';
-import './des.js';
-import './md.js';
-import './oids.js';
-import './pbkdf2.js';
-import './pem.js';
-import './random.js';
-import './rc2.js';
-import './rsa.js';
-import './util.js';
+"use strict";
 
 /**
  * Password-based encryption functions.
@@ -30,18 +19,18 @@ import './util.js';
  *
  * EncryptedData ::= OCTET STRING
  */
-var forge = forge$1;
-
-
-
-
-
-
-
-
-
-
-
+var forge = require('./forge');
+require('./aes');
+require('./asn1');
+require('./des');
+require('./md');
+require('./oids');
+require('./pbkdf2');
+require('./pem');
+require('./random');
+require('./rc2');
+require('./rsa');
+require('./util');
 if (typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
 }
@@ -51,7 +40,7 @@ var asn1 = forge.asn1;
 
 /* Password-based encryption implementation. */
 var pki = forge.pki = forge.pki || {};
-pki.pbe = forge.pbe = forge.pbe || {};
+module.exports = pki.pbe = forge.pbe = forge.pbe || {};
 var oids = pki.oids;
 
 // validator for an EncryptedPrivateKeyInfo structure
@@ -549,19 +538,19 @@ pki.decryptRsaPrivateKey = function (pem, password) {
         break;
       case 'RC2-40-CBC':
         dkLen = 5;
-        cipherFn = function cipherFn(key) {
+        cipherFn = function (key) {
           return forge.rc2.createDecryptionCipher(key, 40);
         };
         break;
       case 'RC2-64-CBC':
         dkLen = 8;
-        cipherFn = function cipherFn(key) {
+        cipherFn = function (key) {
           return forge.rc2.createDecryptionCipher(key, 64);
         };
         break;
       case 'RC2-128-CBC':
         dkLen = 16;
-        cipherFn = function cipherFn(key) {
+        cipherFn = function (key) {
           return forge.rc2.createDecryptionCipher(key, 128);
         };
         break;
@@ -846,7 +835,7 @@ pki.pbe.getCipherForPKCS12PBE = function (oid, params, password) {
     case pki.oids['pbewithSHAAnd40BitRC2-CBC']:
       dkLen = 5;
       dIvLen = 8;
-      cipherFn = function cipherFn(key, iv) {
+      cipherFn = function (key, iv) {
         var cipher = forge.rc2.createDecryptionCipher(key, 40);
         cipher.start(iv, null);
         return cipher;

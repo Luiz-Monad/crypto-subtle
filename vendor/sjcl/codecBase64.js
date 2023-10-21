@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var codec = sjcl.codec = sjcl.codec || {};
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
 var bitArray = sjcl.bitArray;
 /** @fileOverview Bit array codec implementations.
  *
@@ -20,7 +20,7 @@ codec.base64 = {
    */
   _chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
   /** Convert from a bitArray to a base64 string. */
-  fromBits: function fromBits(arr, _noEquals, _url) {
+  fromBits: function (arr, _noEquals, _url) {
     var out = "",
       i,
       bits = 0,
@@ -47,7 +47,7 @@ codec.base64 = {
     return out;
   },
   /** Convert from a base64 string to a bitArray */
-  toBits: function toBits(str, _url) {
+  toBits: function (str, _url) {
     str = str.replace(/\s|=/g, '');
     var out = [],
       i,
@@ -79,10 +79,10 @@ codec.base64 = {
   }
 };
 codec.base64url = {
-  fromBits: function fromBits(arr) {
+  fromBits: function (arr) {
     return sjcl.codec.base64.fromBits(arr, 1, 1);
   },
-  toBits: function toBits(str) {
+  toBits: function (str) {
     return sjcl.codec.base64.toBits(str, 1);
   }
 };

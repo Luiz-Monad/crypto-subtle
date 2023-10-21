@@ -1,8 +1,2 @@
-import { __module as exports } from './_virtual/exports.js';
+"use strict";
 
-(function (module) {
-
-	if (module.exports) {
-	  module.exports = sjcl;
-	} 
-} (exports));

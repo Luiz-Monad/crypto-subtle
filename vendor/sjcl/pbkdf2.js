@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var misc = sjcl.misc = sjcl.misc || {};
+var sjcl = require("./sjcl");
+var misc = module.exports = sjcl.misc = sjcl.misc || {};
 var codec = sjcl.codec;
 /** @fileOverview Password-based key-derivation function, version 2.0.
  *

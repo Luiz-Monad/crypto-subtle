@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var ecc = sjcl.ecc = sjcl.ecc || {};
+var sjcl = require("./sjcl");
+var ecc = module.exports = sjcl.ecc = sjcl.ecc || {};
 var bn = sjcl.bn;
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
@@ -35,10 +35,10 @@ ecc.point = function (curve, x, y) {
   this.curve = curve;
 };
 ecc.point.prototype = {
-  toJac: function toJac() {
+  toJac: function () {
     return new sjcl.ecc.pointJac(this.curve, this.x, this.y, new this.curve.field(1));
   },
-  mult: function mult(k) {
+  mult: function (k) {
     return this.toJac().mult(k, this).toAffine();
   },
   /**
@@ -48,10 +48,10 @@ ecc.point.prototype = {
    * @param {sjcl.ecc.point} affine The other point in affine coordinates.
    * @return {sjcl.ecc.pointJac} The result of the multiplication and addition, in Jacobian coordinates.
    */
-  mult2: function mult2(k, k2, affine2) {
+  mult2: function (k, k2, affine2) {
     return this.toJac().mult2(k, this, k2, affine2).toAffine();
   },
-  multiples: function multiples() {
+  multiples: function () {
     var m, i, j;
     if (this._multiples === undefined) {
       j = this.toJac().doubl();
@@ -63,14 +63,14 @@ ecc.point.prototype = {
     }
     return this._multiples;
   },
-  negate: function negate() {
+  negate: function () {
     var newY = new this.curve.field(0).sub(this.y).normalize().reduce();
     return new sjcl.ecc.point(this.curve, this.x, newY);
   },
-  isValid: function isValid() {
+  isValid: function () {
     return this.y.square().equals(this.curve.b.add(this.x.mul(this.curve.a.add(this.x.square()))));
   },
-  toBits: function toBits() {
+  toBits: function () {
     return sjcl.bitArray.concat(this.x.toBits(), this.y.toBits());
   }
 };
@@ -103,7 +103,7 @@ ecc.pointJac.prototype = {
    * @param {sjcl.ecc.point} T The other point to add, in affine coordinates.
    * @return {sjcl.ecc.pointJac} The sum of the two points, in Jacobian coordinates.
    */
-  add: function add(T) {
+  add: function (T) {
     var S = this,
       sz2,
       c,
@@ -150,7 +150,7 @@ ecc.pointJac.prototype = {
    * doubles this point.
    * @return {sjcl.ecc.pointJac} The doubled point.
    */
-  doubl: function doubl() {
+  doubl: function () {
     if (this.isIdentity) {
       return this;
     }
@@ -168,7 +168,7 @@ ecc.pointJac.prototype = {
    * Returns a copy of this point converted to affine coordinates.
    * @return {sjcl.ecc.point} The converted point.
    */
-  toAffine: function toAffine() {
+  toAffine: function () {
     if (this.isIdentity || this.z.equals(0)) {
       return new sjcl.ecc.point(this.curve);
     }
@@ -182,7 +182,7 @@ ecc.pointJac.prototype = {
    * @param {sjcl.ecc.point} affine This point in affine coordinates.
    * @return {sjcl.ecc.pointJac} The result of the multiplication, in Jacobian coordinates.
    */
-  mult: function mult(k, affine) {
+  mult: function (k, affine) {
     if (typeof k === "number") {
       k = [k];
     } else if (k.limbs !== undefined) {
@@ -207,7 +207,7 @@ ecc.pointJac.prototype = {
    * @param {sjcl.ecc.point} affine The other point in affine coordinates.
    * @return {sjcl.ecc.pointJac} The result of the multiplication and addition, in Jacobian coordinates.
    */
-  mult2: function mult2(k1, affine, k2, affine2) {
+  mult2: function (k1, affine, k2, affine2) {
     if (typeof k1 === "number") {
       k1 = [k1];
     } else if (k1.limbs !== undefined) {
@@ -234,10 +234,10 @@ ecc.pointJac.prototype = {
     }
     return out;
   },
-  negate: function negate() {
+  negate: function () {
     return this.toAffine().negate().toJac();
   },
-  isValid: function isValid() {
+  isValid: function () {
     var z2 = this.z.square(),
       z4 = z2.square(),
       z6 = z4.mul(z2);
@@ -324,7 +324,7 @@ ecc.basicKey = {
   * @param {curve} curve the elliptic curve
   * @param {point} point the point on the curve
   */
-  publicKey: function publicKey(curve, point) {
+  publicKey: function (curve, point) {
     this._curve = curve;
     this._curveBitLength = curve.r.bitLength();
     if (point instanceof Array) {
@@ -361,7 +361,7 @@ ecc.basicKey = {
   * @param {curve} curve the elliptic curve
   * @param exponent
   */
-  secretKey: function secretKey(curve, exponent) {
+  secretKey: function (curve, exponent) {
     this._curve = curve;
     this._curveBitLength = curve.r.bitLength();
     this._exponent = exponent;
@@ -417,14 +417,14 @@ ecc.elGamal = {
   * @constructor
   * @augments sjcl.ecc.basicKey.publicKey
   */
-  publicKey: function publicKey(curve, point) {
+  publicKey: function (curve, point) {
     ecc.basicKey.publicKey.apply(this, arguments);
   },
   /** elGamal secretKey
   * @constructor
   * @augments sjcl.ecc.basicKey.secretKey
   */
-  secretKey: function secretKey(curve, exponent) {
+  secretKey: function (curve, exponent) {
     ecc.basicKey.secretKey.apply(this, arguments);
   }
 };
@@ -433,7 +433,7 @@ ecc.elGamal.publicKey.prototype = {
   * @param paranoia paranoia to use for randomization.
   * @return {object} key and tag. unkem(tag) with the corresponding secret key results in the key returned.
   */
-  kem: function kem(paranoia) {
+  kem: function (paranoia) {
     var sec = sjcl.bn.random(this._curve.r, paranoia),
       tag = this._curve.G.mult(sec).toBits(),
       key = sjcl.hash.sha256.hash(this._point.mult(sec).toBits());
@@ -442,7 +442,7 @@ ecc.elGamal.publicKey.prototype = {
       tag: tag
     };
   },
-  getType: function getType() {
+  getType: function () {
     return "elGamal";
   }
 };
@@ -451,14 +451,14 @@ ecc.elGamal.secretKey.prototype = {
   * @param {bitArray} tag The Tag to decrypt.
   * @return {bitArray} decrypted key.
   */
-  unkem: function unkem(tag) {
+  unkem: function (tag) {
     return sjcl.hash.sha256.hash(this._curve.fromBits(tag).mult(this._exponent).toBits());
   },
   /** Diffie-Hellmann function
   * @param {elGamal.publicKey} pk The Public Key to do Diffie-Hellmann with
   * @return {bitArray} diffie-hellmann result for this key combination.
   */
-  dh: function dh(pk) {
+  dh: function (pk) {
     return sjcl.hash.sha256.hash(pk._point.mult(this._exponent).toBits());
   },
   /** Diffie-Hellmann function, compatible with Java generateSecret
@@ -466,10 +466,10 @@ ecc.elGamal.secretKey.prototype = {
   * @return {bitArray} undigested X value, diffie-hellmann result for this key combination,
   * compatible with Java generateSecret().
   */
-  dhJavaEc: function dhJavaEc(pk) {
+  dhJavaEc: function (pk) {
     return pk._point.mult(this._exponent).x.toBits();
   },
-  getType: function getType() {
+  getType: function () {
     return "elGamal";
   }
 };
@@ -500,7 +500,7 @@ ecc.ecdsa.publicKey.prototype = {
   * @param {bitArray} rs signature bitArray.
   * @param {boolean}  fakeLegacyVersion use old legacy version
   */
-  verify: function verify(hash, rs, fakeLegacyVersion) {
+  verify: function (hash, rs, fakeLegacyVersion) {
     if (sjcl.bitArray.bitLength(hash) > this._curveBitLength) {
       hash = bitArray.clamp(hash, this._curveBitLength);
     }
@@ -522,7 +522,7 @@ ecc.ecdsa.publicKey.prototype = {
     }
     return true;
   },
-  getType: function getType() {
+  getType: function () {
     return "ecdsa";
   }
 };
@@ -542,7 +542,7 @@ ecc.ecdsa.secretKey.prototype = {
   * @param {int} paranoia paranoia for random number generation
   * @param {boolean} fakeLegacyVersion use old legacy version
   */
-  sign: function sign(hash, paranoia, fakeLegacyVersion, fixedKForTesting) {
+  sign: function (hash, paranoia, fakeLegacyVersion, fixedKForTesting) {
     if (sjcl.bitArray.bitLength(hash) > this._curveBitLength) {
       hash = bitArray.clamp(hash, this._curveBitLength);
     }
@@ -554,7 +554,7 @@ ecc.ecdsa.secretKey.prototype = {
       s = fakeLegacyVersion ? ss.inverseMod(R).mul(k).mod(R) : ss.mul(k.inverseMod(R)).mod(R);
     return sjcl.bitArray.concat(r.toBits(l), s.toBits(l));
   },
-  getType: function getType() {
+  getType: function () {
     return "ecdsa";
   }
 };

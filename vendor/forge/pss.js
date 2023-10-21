@@ -1,6 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './random.js';
-import './util.js';
+"use strict";
 
 /**
  * Javascript implementation of PKCS#1 PSS signature padding.
@@ -9,12 +7,12 @@ import './util.js';
  *
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
-var forge = forge$1;
-
-
+var forge = require('./forge');
+require('./random');
+require('./util');
 
 // shortcut for PSS API
-var pss = forge.pss = forge.pss || {};
+var pss = module.exports = forge.pss = forge.pss || {};
 
 /**
  * Creates a PSS signature scheme object.

@@ -1,9 +1,4 @@
-import { forge as forge$1 } from './forge.js';
-import './aes.js';
-import './hmac.js';
-import './md5.js';
-import './sha1.js';
-import './util.js';
+"use strict";
 
 /**
  * Functions to output keys in SSH-friendly formats.
@@ -15,13 +10,13 @@ import './util.js';
  *
  * @author https://github.com/shellac
  */
-var forge = forge$1;
-
-
-
-
-
-var ssh = forge.ssh = forge.ssh || {};
+var forge = require('./forge');
+require('./aes');
+require('./hmac');
+require('./md5');
+require('./sha1');
+require('./util');
+var ssh = module.exports = forge.ssh = forge.ssh || {};
 
 /**
  * Encodes (and optionally encrypts) a private RSA key as a Putty PPK file.

@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var hash = sjcl.hash = sjcl.hash || {};
+var sjcl = require("./sjcl");
+var hash = module.exports = sjcl.hash = sjcl.hash || {};
 var codec = sjcl.codec;
 var bitArray = sjcl.bitArray;
 /** @fileOverview Javascript SHA-512 implementation.
@@ -55,7 +55,7 @@ hash.sha512.prototype = {
    * Reset the hash state.
    * @return this
    */
-  reset: function reset() {
+  reset: function () {
     this._h = this._init.slice(0);
     this._buffer = [];
     this._length = 0;
@@ -66,7 +66,7 @@ hash.sha512.prototype = {
    * @param {bitArray|String} data the data to hash.
    * @return this
    */
-  update: function update(data) {
+  update: function (data) {
     if (typeof data === "string") {
       data = codec.utf8String.toBits(data);
     }
@@ -96,7 +96,7 @@ hash.sha512.prototype = {
    * Complete hashing and output the hash value.
    * @return {bitArray} The hash value, an array of 16 big-endian words.
    */
-  finalize: function finalize() {
+  finalize: function () {
     var i,
       b = this._buffer,
       h = this._h;
@@ -178,7 +178,7 @@ hash.sha512.prototype = {
    * Function to precompute _init and _key.
    * @private
    */
-  _precompute: function _precompute() {
+  _precompute: function () {
     // XXX: This code is for precomputing the SHA256 constants, change for
     //      SHA512 and re-enable.
     var i = 0,
@@ -215,7 +215,7 @@ hash.sha512.prototype = {
    * @param {Uint32Array|bitArray} words one block of words.
    * @private
    */
-  _block: function _block(words) {
+  _block: function (words) {
     var i,
       wrh,
       wrl,

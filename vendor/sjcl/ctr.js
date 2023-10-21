@@ -1,10 +1,18 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-sjcl.beware = sjcl.beware || {};
+var sjcl = require("./sjcl");
+var beware = module.exports = sjcl.beware = sjcl.beware || {};
 var mode = sjcl.mode;
 var exception = sjcl.exception;
 var bitArray = sjcl.bitArray;
+/** @fileOverview CTR mode implementation
+ *
+ * @author Torben Haase
+ */
+
+if (beware === undefined) {
+  beware = {};
+}
 sjcl.beware["CTR mode is dangerous because it doesn't protect message integrity."] = function () {
   /**
    * Dangerous: CTR mode.
@@ -24,7 +32,7 @@ sjcl.beware["CTR mode is dangerous because it doesn't protect message integrity.
      * @return The encrypted data, an array of bytes.
      * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits or if any adata is specified.
      */
-    encrypt: function encrypt(prf, plaintext, iv, adata) {
+    encrypt: function (prf, plaintext, iv, adata) {
       return mode.ctr._calculate(prf, plaintext, iv, adata);
     },
     /** Decrypt in CTR mode.
@@ -36,11 +44,11 @@ sjcl.beware["CTR mode is dangerous because it doesn't protect message integrity.
      * @throws {sjcl.exception.invalid} if the IV isn't exactly 128 bits or if any adata is specified.
      * @throws {sjcl.exception.corrupt} if if the message is corrupt.
      */
-    decrypt: function decrypt(prf, ciphertext, iv, adata) {
+    decrypt: function (prf, ciphertext, iv, adata) {
       return mode.ctr._calculate(prf, ciphertext, iv, adata);
     },
-    _calculate: function _calculate(prf, data, iv, adata) {
-      var l, bl, c, d, e, i;
+    _calculate: function (prf, data, iv, adata) {
+      var l, bl, res, c, d, e, i;
       if (adata && adata.length) {
         throw new exception.invalid("ctr can't authenticate data");
       }

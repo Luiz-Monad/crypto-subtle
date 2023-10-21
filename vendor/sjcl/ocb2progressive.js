@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var mode = sjcl.mode = sjcl.mode || {};
+var sjcl = require("./sjcl");
+var mode = module.exports = sjcl.mode = sjcl.mode || {};
 var bitArray = sjcl.bitArray;
 /**
  * OCB2.0 implementation slightly modified by Yifan Gu
@@ -27,7 +27,7 @@ var bitArray = sjcl.bitArray;
  */
 
 mode.ocb2progressive = {
-  createEncryptor: function createEncryptor(prp, iv, adata, tlen, premac) {
+  createEncryptor: function (prp, iv, adata, tlen, premac) {
     if (sjcl.bitArray.bitLength(iv) !== 128) {
       throw new sjcl.exception.invalid("ocb iv must be 128 bits");
     }
@@ -44,7 +44,7 @@ mode.ocb2progressive = {
     adata = adata || [];
     tlen = tlen || 64;
     return {
-      process: function process(data) {
+      process: function (data) {
         var datalen = sjcl.bitArray.bitLength(data);
         if (datalen == 0) {
           // empty input natrually gives empty output
@@ -63,7 +63,7 @@ mode.ocb2progressive = {
         return output; //spits out the result.
       },
 
-      finalize: function finalize() {
+      finalize: function () {
         // the final block
         bi = datacache;
         bl = w.bitLength(bi);
@@ -83,7 +83,7 @@ mode.ocb2progressive = {
     };
   },
 
-  createDecryptor: function createDecryptor(prp, iv, adata, tlen, premac) {
+  createDecryptor: function (prp, iv, adata, tlen, premac) {
     if (sjcl.bitArray.bitLength(iv) !== 128) {
       throw new sjcl.exception.invalid("ocb iv must be 128 bits");
     }
@@ -100,7 +100,7 @@ mode.ocb2progressive = {
       pad;
     adata = adata || [];
     return {
-      process: function process(data) {
+      process: function (data) {
         if (data.length == 0) {
           // empty input natrually gives empty output
           return [];
@@ -118,7 +118,7 @@ mode.ocb2progressive = {
         datacache = datacache.slice(i);
         return output;
       },
-      finalize: function finalize() {
+      finalize: function () {
         /* Chop out and decrypt the final block */
         bl = bitArray.bitLength(datacache) - tlen;
         pad = prp.encrypt(xor(delta, [0, 0, 0, bl]));

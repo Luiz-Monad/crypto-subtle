@@ -1,7 +1,7 @@
-import require$$0 from './_virtual/sjcl.js';
+"use strict";
 
-var sjcl = require$$0;
-var codec = sjcl.codec = sjcl.codec || {};
+var sjcl = require("./sjcl");
+var codec = module.exports = sjcl.codec = sjcl.codec || {};
 var bitArray = sjcl.bitArray;
 /** @fileOverview Bit array codec implementations.
  *
@@ -16,7 +16,7 @@ var bitArray = sjcl.bitArray;
  */
 codec.utf8String = {
   /** Convert from a bitArray to a UTF-8 string. */
-  fromBits: function fromBits(arr) {
+  fromBits: function (arr) {
     var out = "",
       bl = sjcl.bitArray.bitLength(arr),
       i,
@@ -31,7 +31,7 @@ codec.utf8String = {
     return decodeURIComponent(escape(out));
   },
   /** Convert from a UTF-8 string to a bitArray. */
-  toBits: function toBits(str) {
+  toBits: function (str) {
     str = unescape(encodeURIComponent(str));
     var out = [],
       i,
