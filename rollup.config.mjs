@@ -7,18 +7,31 @@ import terser from '@rollup/plugin-terser';
 const config = {
   input: './src/main.js',
   plugins: [
-    babel({ babelHelpers: 'inline' }),
+    babel({
+      configFile: './.babelrc',
+      babelHelpers: 'bundled'
+    }),
     alias({
       entries: [
-        { find: 'node-forge', replacement: './vendor/forge/forge.js' },
-        { find: 'rsa-compat', replacement: './vendor/rsa/rsa-compat/index.js' },
-        { find: 'sjcl', replacement: './vendor/sjcl/_virtual/_virtual_index.js' },
+        /* browser */
         { find: 'crypto', replacement: './src/shim-crypto.js' },
+
+        /* node */
+        { find: 'module', replacement: './src/shim-node-module.js' },
+        { find: 'os', replacement: './src/shim-node-os.js' },
+        { find: 'buffer-v6-polyfill', replacement: './node_modules/buffer/index.js' },
+
+        /* not-used */
         { find: 'ecc-jsbn', replacement: './src/shim-ecc.js' },
         { find: 'ecc-qj', replacement: './src/shim-qj.js' },
-        { find: 'os', replacement: './src/shim-node-os.js' },
-        { find: 'module', replacement: './src/shim-node-module.js' },
-        { find: 'buffer-v6-polyfill', replacement: './node_modules/buffer/index.js' }
+
+        /* vendor */
+        { find: 'sjcl', replacement: './vendor/sjcl/_virtual/_virtual_index.js' },
+        { find: 'node-forge', replacement: './vendor/forge/_virtual/_virtual_index.js' },
+        { find: 'rsa-compat', replacement: './vendor/rsa/_virtual/_virtual_index.js' },
+        { find: 'keypairs', replacement: './vendor/keypairs/_virtual/_virtual_index.js' },
+        { find: 'rasha', replacement: './vendor/rasha/_virtual/_virtual_index.js' },
+        { find: 'eckles', replacement: './vendor/eckles/_virtual/_virtual_index.js' },
       ],
       customResolver: (id) => {
         console.log('aliasing', id)
@@ -31,7 +44,9 @@ const config = {
         return id
       }
     }),
-    commonjs(),
+    commonjs({
+      preserveModules: true,
+    }),
   ],
   output: [{
     file: 'dist/subtle.js',
@@ -44,6 +59,13 @@ const config = {
     name: 'subtle',
     sourcemap: true,
     plugins: [terser()],
+  }, {
+    dir: 'dist/es',
+    format: 'es',
+    name: 'subtle',
+    sourcemap: true,
+    preserveModules: true,
+    minifyInternalExports: false,
   }],
 };
 

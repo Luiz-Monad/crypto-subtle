@@ -1,30 +1,5 @@
 {
-    "plugins": [
-        "./plugin-unwrap",
-        "./plugin-clean",
-        "./plugin-module"
-    ],
-    "presets": [
-        [
-            "@babel/preset-env",
-            {
-                "targets": {
-                    "browsers": [
-                        "defaults",
-                        "not ie 11",
-                        "not ie_mob 11"
-                    ]
-                },
-                "modules": "commonjs",
-                "forceAllTransforms": false,
-                "shippedProposals": false,
-                "useBuiltIns": false,
-                "spec": false,
-                "loose": true,
-                "bugfixes": true
-            }
-        ]
-    ],
+
     "sourceMap": false,
     "sourceType": "module"
 }

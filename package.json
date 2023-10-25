@@ -4,7 +4,7 @@
   "description": "crypto.subtle for node.js",
   "main": "src/main.js",
   "scripts": {
-    "vendor": "rollup -c vendor.rollup.config.mjs",
+    "prebuild": "rollup -c vendor.rollup.config.mjs",
     "build": "rollup -c rollup.config.mjs"
   },
   "keywords": [

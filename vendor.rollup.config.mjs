@@ -1,7 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs'
-import multiEntry from '@rollup/plugin-multi-entry'
+import commonjs from '@rollup/plugin-commonjs';
+import multiEntry from '@rollup/plugin-multi-entry';
 
 import path from 'path';
 import Glob from 'glob';
@@ -26,7 +26,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
   plugins: [
     ...plugins,
     babel({
-      configFile: './.babelrc',
+      configFile: './vendor.babelrc',
       babelHelpers: 'external',
       skipPreflightCheck: true,
     }),

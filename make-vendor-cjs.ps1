@@ -26,7 +26,7 @@ function bundler ($base, $target) {
         }
         
         function babelify ($in, $out) {
-            babel $in --out-file $out --config-file '.\vendor.babelrc'
+            babel $in --out-file $out --config-file '.\vendor.cjs.babelrc'
         }
 
         babelify -in $f -out (Join-Path $using:target (rel $using:base $f)) 
