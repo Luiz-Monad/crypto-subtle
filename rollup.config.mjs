@@ -39,19 +39,19 @@ const config = {
         /* node */
         { find: 'module', replacement: './src/shim-node-module.js' },
         { find: 'os', replacement: './src/shim-node-os.js' },
-        { find: 'buffer', replacement: './src/shim-node-buffer.js' },
+        { find: 'buffer', replacement: './vendor/buffer/index.js' },
 
         /* not-used */
         { find: 'ecc-jsbn', replacement: './src/shim-ecc.js' },
         { find: 'ecc-qj', replacement: './src/shim-qj.js' },
 
         /* vendor */
-        { find: 'sjcl', replacement: './src/shim-sjcl.js' },
-        { find: 'node-forge', replacement: './src/shim-forge.js' },
-        { find: 'rsa-compat', replacement: './src/shim-rsacompat.js' },
-        { find: 'keypairs', replacement: './src/shim-keypairs.js' },
-        { find: 'rasha', replacement: './src/shim-rasha.js' },
-        { find: 'eckles', replacement: './src/shim-eckles.js' },
+        { find: 'sjcl', replacement: './vendor/sjcl/index.js' },
+        { find: 'node-forge', replacement: './vendor/forge/index.js' },
+        { find: 'rsa-compat', replacement: './vendor/rsa/rsa.js' },
+        { find: 'keypairs', replacement: './vendor/keypairs/keypairs.js' },
+        { find: 'rasha', replacement: './vendor/rasha/rasha.js' },
+        { find: 'eckles', replacement: './vendor/eckles/eckles.js' },
       ],
       customResolver: (id) => {
         console.log('aliasing', id)

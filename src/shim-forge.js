@@ -1,1 +1,0 @@
-module.exports = require('../vendor/forge/_virtual/_virtual_index.js');

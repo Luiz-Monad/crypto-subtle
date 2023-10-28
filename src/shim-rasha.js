@@ -1,1 +1,0 @@
-module.exports = require('../vendor/rasha/_virtual/_virtual_index.js');

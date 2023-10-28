@@ -1,1 +1,0 @@
-module.exports = require('../vendor/rsa/_virtual/_virtual_index.js');

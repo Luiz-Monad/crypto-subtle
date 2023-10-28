@@ -9,13 +9,13 @@ import Glob from 'glob';
 const glob = (patt) => (cwd) => Glob.sync(patt, { cwd });
 
 const vendored = {
-  sjcl: ['./vendor-cjs/sjcl', glob('*')],
-  forge: ['./vendor-cjs/forge', 'index.js'],
-  rsa: ['./vendor-cjs/rsa', 'rsa.js'],
-  keypairs: ['./vendor-cjs/keypairs', 'keypairs.js'],
-  rasha: ['./vendor-cjs/rasha', 'rasha.js'],
-  eckles: ['./vendor-cjs/eckles', 'eckles.js'],
-  buffer: ['./vendor-cjs/buffer', 'index.js'],
+  sjcl: ['./vendor/sjcl', glob('*')],
+  forge: ['./vendor/forge', 'index.js'],
+  rsa: ['./vendor/rsa', 'rsa.js'],
+  keypairs: ['./vendor/keypairs', 'keypairs.js'],
+  rasha: ['./vendor/rasha', 'rasha.js'],
+  eckles: ['./vendor/eckles', 'eckles.js'],
+  buffer: ['./vendor/buffer', 'index.js'],
 }
 
 const entrypoint = (root, input) =>
@@ -61,7 +61,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     'eckles',
   ],
   output: {
-    dir: `vendor/${libName}`,
+    dir: `dist/vendor/${libName}`,
     format: 'es',
     preserveModules: true,
     minifyInternalExports: false,
