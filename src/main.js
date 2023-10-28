@@ -12,6 +12,7 @@ if (typeof process === 'object' && process.versions && process.versions.node) {
 var NodeBuffer = require("buffer")
 global.Buffer = global.Buffer || NodeBuffer;
 var NodeCrypto = require("crypto");
+global.crypto = NodeCrypto;
 var OPS = ["generateKey", "importKey", "exportKey", "sign", "verify", "encrypt", "decrypt", "digest", "deriveKey", "deriveBits"]
 var nonce = NodeCrypto.randomBytes(64).toString("hex")
 var Bufferize = require('./bufferize')
@@ -56,5 +57,8 @@ for (var i in OPS){
 }
 
 Subtle._CryptoKey = global.CryptoKey || JS.CryptoKey;
+
+global.crypto.subtle = Subtle;
+global.crypto.Subtle = Subtle;
 
 module.exports = Subtle;
