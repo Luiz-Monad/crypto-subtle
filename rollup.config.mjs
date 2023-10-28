@@ -3,13 +3,33 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 import terser from '@rollup/plugin-terser';
+import multi from '@rollup/plugin-multi-entry';
+
+import path from 'path';
+
+const root = './src'
 
 const config = {
-  input: './src/main.js',
+  input: ['./src/main.js'],
   plugins: [
     babel({
       configFile: './.babelrc',
       babelHelpers: 'bundled'
+    }),
+    resolve({
+      rootDir: root,
+      moduleDirectories: [
+        path.resolve(root),
+      ],
+      resolveOnly: (id) => {
+        if (!(id.length === 2 && id[1] === ':'))
+          console.log('resolving', id);
+        return id;
+      }
+    }),
+    commonjs({
+      preserveModules: true,
+      transformMixedEsModules: true,
     }),
     alias({
       entries: [
@@ -26,29 +46,25 @@ const config = {
         { find: 'ecc-qj', replacement: './src/shim-qj.js' },
 
         /* vendor */
-        { find: 'sjcl', replacement: './vendor/sjcl/_virtual/_virtual_index.js' },
-        { find: 'node-forge', replacement: './vendor/forge/_virtual/_virtual_index.js' },
-        { find: 'rsa-compat', replacement: './vendor/rsa/_virtual/_virtual_index.js' },
-        { find: 'keypairs', replacement: './vendor/keypairs/_virtual/_virtual_index.js' },
-        { find: 'rasha', replacement: './vendor/rasha/_virtual/_virtual_index.js' },
-        { find: 'eckles', replacement: './vendor/eckles/_virtual/_virtual_index.js' },
+        { find: 'sjcl', replacement: './src/shim-sjcl.js' },
+        { find: 'node-forge', replacement: './src/shim-forge.js' },
+        { find: 'rsa-compat', replacement: './src/shim-rsacompat.js' },
+        { find: 'keypairs', replacement: './src/shim-keypairs.js' },
+        { find: 'rasha', replacement: './src/shim-rasha.js' },
+        { find: 'eckles', replacement: './src/shim-eckles.js' },
       ],
       customResolver: (id) => {
         console.log('aliasing', id)
         return id
       }
     }),
-    resolve({
-      resolveOnly: (id) => {
-        console.log('resolving', id)
-        return id
-      }
-    }),
-    commonjs({
+    multi({
+      entryFileName: 'index.js',
+      exports: true,
       preserveModules: true,
     }),
   ],
-  output: [{
+  output: /*[{
     file: 'dist/subtle.js',
     format: 'iife',
     name: 'subtle',
@@ -59,14 +75,14 @@ const config = {
     name: 'subtle',
     sourcemap: true,
     plugins: [terser()],
-  }, {
+  },*/ {
     dir: 'dist/es',
     format: 'es',
-    name: 'subtle',
-    sourcemap: true,
+    // name: 'subtle',
+    // sourcemap: true,
     preserveModules: true,
-    minifyInternalExports: false,
-  }],
+    // minifyInternalExports: false,
+  }/*],*/
 };
 
 export default config;

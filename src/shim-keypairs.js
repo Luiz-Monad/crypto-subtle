@@ -1,0 +1,1 @@
+module.exports = require('../vendor/keypairs/_virtual/_virtual_index.js');

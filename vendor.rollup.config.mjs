@@ -1,7 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import multiEntry from '@rollup/plugin-multi-entry';
+import multi from '@rollup/plugin-multi-entry';
 
 import path from 'path';
 import Glob from 'glob';
@@ -39,7 +39,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     commonjs({
       preserveModules: true,
     }),
-    multiEntry({
+    multi({
       entryFileName: 'index.js',
       exports: true,
       preserveModules: true,
