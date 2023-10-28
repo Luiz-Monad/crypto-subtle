@@ -39,7 +39,7 @@ const config = {
         /* node */
         { find: 'module', replacement: './src/shim-node-module.js' },
         { find: 'os', replacement: './src/shim-node-os.js' },
-        { find: 'buffer-v6-polyfill', replacement: './node_modules/buffer/index.js' },
+        { find: 'buffer', replacement: './src/shim-node-buffer.js' },
 
         /* not-used */
         { find: 'ecc-jsbn', replacement: './src/shim-ecc.js' },
@@ -64,7 +64,7 @@ const config = {
       preserveModules: true,
     }),
   ],
-  output: /*[{
+  output: [{
     file: 'dist/subtle.js',
     format: 'iife',
     name: 'subtle',
@@ -75,14 +75,14 @@ const config = {
     name: 'subtle',
     sourcemap: true,
     plugins: [terser()],
-  },*/ {
+  }, {
     dir: 'dist/es',
     format: 'es',
-    // name: 'subtle',
-    // sourcemap: true,
+    name: 'subtle',
+    sourcemap: true,
     preserveModules: true,
-    // minifyInternalExports: false,
-  }/*],*/
+    minifyInternalExports: true,
+  }],
 };
 
 export default config;

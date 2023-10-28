@@ -1,0 +1,1 @@
+module.exports = require('../vendor/buffer/_virtual/_virtual_index.js');

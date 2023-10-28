@@ -6,11 +6,6 @@
 
 var RSA = module.exports = {};
 RSA.utils = {};
-try {
-  require('buffer-v6-polyfill');
-} catch (e) {
-  /* ignore */
-}
 var Keypairs = require('keypairs');
 var RSACSR = require('./rsa-csr');
 var NOBJ = {};

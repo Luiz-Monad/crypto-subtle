@@ -16,6 +16,7 @@ function bundler ($base, $target) {
         
     Get-ChildItem (Join-path $base '*.js')  -Recurse | 
     Where-Object { $_.FullName.Replace('\', '/') -notlike '*/bin/*' } |
+    Where-Object { $_.FullName -notlike '*.min.js' } |
     Select-Object -ExpandProperty fullname | 
     parallel {
         param($f)
@@ -42,4 +43,6 @@ bundler './node_modules/rsa-compat/lib/' 'vendor-cjs/rsa'
 bundler './node_modules/keypairs/' 'vendor-cjs/keypairs'
 bundler './node_modules/eckles/lib/' 'vendor-cjs/eckles'
 bundler './node_modules/rasha/lib/' 'vendor-cjs/rasha'
-
+bundler './node_modules/buffer/' 'vendor-cjs/buffer'
+bundler './node_modules/base64-js/' 'vendor-cjs/buffer/base64'
+bundler './node_modules/ieee754/' 'vendor-cjs/buffer/ieee754'

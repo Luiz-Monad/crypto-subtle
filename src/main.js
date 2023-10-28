@@ -9,6 +9,8 @@ if (typeof process === 'object' && process.versions && process.versions.node) {
     return crypto.subtle[routine].apply(crypto.subtle, args);
   }
 }
+var NodeBuffer = require("buffer")
+global.Buffer = global.Buffer || NodeBuffer;
 var NodeCrypto = require("crypto");
 var OPS = ["generateKey", "importKey", "exportKey", "sign", "verify", "encrypt", "decrypt", "digest", "deriveKey", "deriveBits"]
 var nonce = NodeCrypto.randomBytes(64).toString("hex")

@@ -15,6 +15,7 @@ const vendored = {
   keypairs: ['./vendor-cjs/keypairs', 'keypairs.js'],
   rasha: ['./vendor-cjs/rasha', 'rasha.js'],
   eckles: ['./vendor-cjs/eckles', 'eckles.js'],
+  buffer: ['./vendor-cjs/buffer', 'index.js'],
 }
 
 const entrypoint = (root, input) =>
@@ -50,7 +51,7 @@ const config = Object.entries(vendored).map(([libName, [root, input, plugins = [
     'crypto',
 
     /* node */
-    'buffer-v6-polyfill',
+    'buffer',
     'os',
 
     /* vendor */
